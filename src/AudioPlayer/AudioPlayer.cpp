@@ -27,6 +27,7 @@ void AudioInit(int BLCK, int LRC, int DOUT) {
   //Iniciarlizar DAC
   out = new AudioOutputI2S();
   out->SetPinout(BLCK, LRC, DOUT);
+  out->SetOutputModeMono(true);
   out->SetGain(1);  //0.0 – 1.0
 
   mp3 = new AudioGeneratorMP3();
@@ -39,21 +40,17 @@ void AudioUpdate() {
     mp3->loop();
   } else if (mp3) {
     mp3->stop();
-  }
-}
-
-void StopSound() {
-  if (mp3 && mp3->isRunning()) {
-    mp3->stop();
+    CleanMemory();
   }
 }
 
 void PlaySound(const char *filePath) {
-  StopSound();
   if (!AudioFileExists) return;
+  CleanMemory();
 
   // Cargar nuevo archivo
   file = new AudioFileSourceSD(filePath);
+  mp3 = new AudioGeneratorMP3();
 
   // Iniciar reproducción
   if (!mp3->begin(file, out)) {
@@ -62,6 +59,19 @@ void PlaySound(const char *filePath) {
     return;
   }
   Serial.printf("Reproduciendo: %s\n", filePath);
+}
+
+//PlaySoound con un volumen especifico
+void PlaySound(const char *filePath, float volume) {
+  if (out) out->SetGain(volume);
+  PlaySound(filePath);
+}
+
+void StopSound() {
+  if (mp3 && mp3->isRunning()) {
+    mp3->stop();
+    CleanMemory();
+  }
 }
 
 bool AudioFileExists(const char *filePath) {
@@ -74,6 +84,18 @@ bool AudioFileExists(const char *filePath) {
 }
 
 void CleanMemory() {
-  delete file;
-  file = nullptr;
+  // Limpiar generador MP3
+  if (mp3) {
+    if (mp3->isRunning()) {
+      mp3->stop();
+    }
+    delete mp3;
+    mp3 = nullptr;
+  }
+
+  // Limpiar fuente de archivo
+  if (file) {
+    delete file;
+    file = nullptr;
+  }
 }
