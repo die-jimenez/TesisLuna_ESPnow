@@ -1,101 +1,62 @@
 #include "AudioPlayer.h"
 
-//Memoria SD
-#include <SPI.h>
-#include <SD.h>
+//Comunicación serial
+#include "HardwareSerial.h"
 
-//Audio
-#include "AudioFileSourceSD.h"
-#include "AudioGeneratorMP3.h"
-#include "AudioOutputI2S.h"
+//Modulo Mp3
+#include "DFRobotDFPlayerMini.h"
 
-static AudioGeneratorMP3 *mp3 = nullptr;
-static AudioFileSourceSD *file = nullptr;
-static AudioOutputI2S *out = nullptr;
+HardwareSerial dfSD(1);  // Use UART channel 1
+DFRobotDFPlayerMini player;
+bool playerReady = false;
 
-void SDcardInit(int SCK, int MISO, int MOSI, int SS) {
-  SPI.begin(SCK, MISO, MOSI, SS);
 
-  if (!SD.begin(SS, SPI)) {
-    Serial.println("¡Error al inicializar tarjeta SD!");
-    while (1)
-      ;  // Detener ejecución si falla
+void Mp3ModuleInit(int RX, int TX) {
+  dfSD.begin(9600, SERIAL_8N1, RX, TX);
+  Serial.println("");
+  delay(5000);
+
+  if (player.begin(dfSD)) {
+    playerReady = true;
+    player.volume(20); //volume -> (0 to 30)
+    Serial.println("MP3-TP-16P is connected");
+  } else {
+    Serial.println("Connecting to DFPlayer Mini failed!");
   }
 }
 
-void AudioInit(int BLCK, int LRC, int DOUT) {
-  //Iniciarlizar DAC
-  out = new AudioOutputI2S();
-  out->SetPinout(BLCK, LRC, DOUT);
-  out->SetOutputModeMono(true);
-  out->SetGain(1);  //0.0 – 1.0
-
-  mp3 = new AudioGeneratorMP3();
-  file = new AudioFileSourceSD("/1-L1.mp3");
-  mp3->begin(file, out);
-}
-
-void AudioUpdate() {
-  if (mp3 && mp3->isRunning()) {
-    mp3->loop();
-  } else if (mp3) {
-    mp3->stop();
-    CleanMemory();
-  }
-}
-
-void PlaySound(const char *filePath) {
+void PlaySound(int audioIndex) {
+  if (!playerReady) return;
   if (!AudioFileExists) return;
-  CleanMemory();
 
-  // Cargar nuevo archivo
-  file = new AudioFileSourceSD(filePath);
-  mp3 = new AudioGeneratorMP3();
-
-  // Iniciar reproducción
-  if (!mp3->begin(file, out)) {
-    Serial.println("Error al iniciar MP3");
-    CleanMemory();
-    return;
-  }
-  Serial.printf("Reproduciendo: %s\n", filePath);
+  player.play(audioIndex);
+  Serial.print("Audio played: ");
+  Serial.println(audioIndex);
 }
 
 //PlaySoound con un volumen especifico
-void PlaySound(const char *filePath, float volume) {
-  if (out) out->SetGain(volume);
-  PlaySound(filePath);
+void PlaySound(int audioIndex, float volume) {
+  player.volume(volume);
+  PlaySound(audioIndex);
 }
 
 void StopSound() {
-  if (mp3 && mp3->isRunning()) {
-    mp3->stop();
-    CleanMemory();
-  }
+  if(!playerReady) return;
+  player.stop();
+  delay(1000);
 }
 
-bool AudioFileExists(const char *filePath) {
-  if (!SD.exists(filePath)) {
-    Serial.println();
-    Serial.printf("¡Archivo %s no encontrado!\n", filePath);
+bool AudioFileExists(int audioIndex) {
+  // Pedimos el conteo total de archivos en la SD
+  int totalAudios = player.readFileCounts();
+  if (totalAudios == -1 || totalAudios == 0) {
+    Serial.println("Error: No se pudo leer la SD o está vacía.");
+    return false;
+  }
+  if (audioIndex > totalAudios) {
+    Serial.printf("¡Track %d no encontrado! Total disponible: %d\n", audioIndex, totalAudios);
+    PlaySound(1);
     return false;
   }
   return true;
-}
-
-void CleanMemory() {
-  // Limpiar generador MP3
-  if (mp3) {
-    if (mp3->isRunning()) {
-      mp3->stop();
-    }
-    delete mp3;
-    mp3 = nullptr;
-  }
-
-  // Limpiar fuente de archivo
-  if (file) {
-    delete file;
-    file = nullptr;
-  }
 }

@@ -4,8 +4,6 @@
 #include <esp_now.h>
 #include <WiFi.h>
 
-#include "../AudioPlayer/AudioPlayer.h"  //DEBUG ---> BORRAR LUEGO
-
 // ====== DIRECCIÓN DE ENVÍO ======
 uint8_t broadcastAddress[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };  //REPLACE WITH YOUR RECEIVER MAC Address
 
@@ -22,11 +20,11 @@ static void OnDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
 void OnDataRecv(const uint8_t* mac, const uint8_t* incomingData, int len) {
   memcpy(&otherData, incomingData, sizeof(otherData));
   EspNowPrintReceiveData();
-  PlaySound("/1-L1.mp3");
 }
 
 void EspNowInit() {
   WiFi.mode(WIFI_STA);
+  Serial.print("MAC Addres: ");
   Serial.println(WiFi.macAddress());
 
 

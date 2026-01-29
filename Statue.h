@@ -9,9 +9,10 @@ private:
   //Setting and songs
   //===================================================
   String name;
-  const char* songsPath[4];
   int currentSong = 0;
   int nextSong = 1;
+
+
 
   //Main States
   //===================================================
@@ -29,12 +30,18 @@ private:
 
 
 
-
-
-
 public:
-  Statue(String _name, const char* _songsPath[4]);
+  Statue(String _name);
   ~Statue();
+
+  enum AudiosTrack {
+    TRACK_SILENCE,        // 0
+    TRACK_PURR_COMPLAIN,  // 1
+    TRACK_SONG_1,         // 2
+    TRACK_SONG_2,         // 3
+    TRACK_GOOD_ENDING,    // 4
+    TRACK_BAD_ENDING      // 5
+  };
 
   void Enable() {
     interactionEnabled = true;

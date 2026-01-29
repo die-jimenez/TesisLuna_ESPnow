@@ -18,9 +18,9 @@ const uint8_t TOTAL_SENSORS = 9;                     //Numero de sensores activo
 
 //Pines usados
 //===================================================
-#define SENSOR_10_PIN 4
-#define SENSOR_11_PIN 16
-#define SENSOR_12_PIN 17
+#define SENSOR_10_PIN 27 //Verificar estos pines <----------------
+#define SENSOR_11_PIN 26 
+#define SENSOR_12_PIN 25 
 
 #define SENSOR_20_PIN 36  //pin SVP (Solo input)
 #define SENSOR_21_PIN 39  //pin SVN (Solo input)
@@ -34,20 +34,13 @@ const uint8_t TOTAL_SENSORS = 9;                     //Numero de sensores activo
 #define SENSOR_41_PIN 33
 #define SENSOR_42_PIN 32
 
-// Configuración de pines para microSD
-#define SD_MISO 19
-#define SD_MOSI 23
-#define SD_SCK 18
-#define SD_SS 5  //PIN PROBLEMATICO
-
-// Configuración de pines para I2S
-#define I2S_LRC 14
-#define I2S_BCLK 27
-#define I2S_DOUT 26  //D-OUT = DIN
-
 // Luces
 #define LEDS_BOCA 13     //Se podrian unificar
 #define LEDS_ENTORNO 12  //PIN PROBLEMATICO
+
+// MP3 module
+#define RXD2 16 // esp receiver (rx) --> module transciever (tx) 
+#define TXD2 17 // D2 = segundo puerto serial, pero es solo nombre
 
 
 //Maquina de estados
@@ -64,19 +57,9 @@ float cronometroToMimitos;
 DeltaTime deltaTime;
 
 
-//Songs path
-//===================================================
-const char* happySongs[4] = {
-  "/1-L1.mp3",
-  "/happy2.mp3",
-  "/happy3.mp3",
-  "/happy4.mp3"
-};
-
-
 //Objects
 //===================================================
-Statue happyStatue("happy", happySongs);
+Statue happyStatue("happy");
 
 TouchSensor sensors[9] = {
   //id 21... "2" fila y "1" columna
@@ -101,9 +84,8 @@ int contadorMimitos;
 
 void setup() {
   Serial.begin(115200);
+  Mp3ModuleInit(RXD2, TXD2);
   EspNowInit();
-  SDcardInit(SD_SCK, SD_MISO, SD_MOSI, SD_SS);
-  AudioInit(I2S_BCLK, I2S_LRC, I2S_DOUT);
 
   //Sensors init
   for (int i = 0; i < TOTAL_SENSORS; i++) {
@@ -129,15 +111,11 @@ void loop() {
   for (int i = 0; i < TOTAL_SENSORS; i++) {
     if (sensors[i].isTouchStable()) {
       EspNowSendExample();
+      PlaySound(happyStatue.TRACK_SONG_1);
       delay(1000);
-      // PlaySound("/1-L1.mp3");
     }
   }
 
-
-
-
-  AudioUpdate();
   deltaTime.Run();
   delay(5);
 }

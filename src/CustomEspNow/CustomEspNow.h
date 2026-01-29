@@ -1,6 +1,5 @@
 #ifndef __CUSTOMESPNOW_H__
 #define __CUSTOMESPNOW_H__
-
 #include <Arduino.h>
 
 // ====== STRUCT DEL MENSAJE ======
