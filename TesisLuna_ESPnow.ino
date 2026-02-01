@@ -2,7 +2,7 @@
 #include "Arduino.h"
 #include "src/CustomEspNow/CustomEspNow.h"
 #include "src/AudioPlayer/AudioPlayer.h"
-#include "Statue.h"
+#include "src/Statue/Statue.h"
 
 #include "src/DeltaTime/DeltaTime.h"
 #include "src/TouchSensor/TouchSensor.h"
@@ -56,10 +56,9 @@ float cronometroToMimitos;
 //===================================================
 DeltaTime deltaTime;
 
-
 //Objects
 //===================================================
-Statue happyStatue("happy");
+Statue statue(Statue::StatueName::happy, LEDS_BOCA);
 
 TouchSensor sensors[9] = {
   //id 21... "2" fila y "1" columna
@@ -87,6 +86,10 @@ void setup() {
   Mp3ModuleInit(RXD2, TXD2);
   EspNowInit();
 
+  //Leds
+  statue.InitLeds();
+  statue.TurnOnLEDs(true);
+
   //Sensors init
   for (int i = 0; i < TOTAL_SENSORS; i++) {
     sensors[i].Init();
@@ -111,7 +114,7 @@ void loop() {
   for (int i = 0; i < TOTAL_SENSORS; i++) {
     if (sensors[i].isTouchStable()) {
       EspNowSendExample();
-      PlaySound(happyStatue.TRACK_SONG_1);
+      PlaySound(statue.TRACK_SONG_1);
       delay(1000);
     }
   }

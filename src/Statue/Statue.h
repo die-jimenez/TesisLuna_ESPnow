@@ -8,11 +8,7 @@ class Statue {
 private:
   //Setting and songs
   //===================================================
-  String name;
-  int currentSong = 0;
-  int nextSong = 1;
-
-
+  int LEDs;
 
   //Main States
   //===================================================
@@ -31,7 +27,14 @@ private:
 
 
 public:
-  Statue(String _name);
+  enum StatueName {
+    happy,
+    sad
+  };
+  StatueName name;
+
+
+  Statue(StatueName _name, int ledsPin);
   ~Statue();
 
   enum AudiosTrack {
@@ -43,15 +46,13 @@ public:
     TRACK_BAD_ENDING      // 5
   };
 
-  void Enable() {
-    interactionEnabled = true;
-  }
-  void Disable() {
-    interactionEnabled = false;
-  }
-  bool IsEnabled() {
-    return interactionEnabled;
-  }
+  //LEDs
+  void InitLeds();
+  void TurnOnLEDs(bool val);
+
+  void Enable();
+  void Disable();
+  bool IsEnabled();
 };
 
 
