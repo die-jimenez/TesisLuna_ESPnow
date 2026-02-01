@@ -14,14 +14,27 @@ bool playerReady = false;
 void Mp3ModuleInit(int RX, int TX) {
   dfSD.begin(9600, SERIAL_8N1, RX, TX);
   Serial.println("");
+  Serial.println("Trying to start comunication with mp3");
   delay(5000);
 
-  if (player.begin(dfSD)) {
-    playerReady = true;
-    player.volume(20); //volume -> (0 to 30)
-    Serial.println("MP3-TP-16P is connected");
-  } else {
-    Serial.println("Connecting to DFPlayer Mini failed!");
+  int intentos = 0;
+  const int MAX_INTENTOS = 3;
+
+  while (!playerReady && intentos < MAX_INTENTOS) {
+    if (player.begin(dfSD)) {
+      playerReady = true;
+      player.volume(20);
+      Serial.println("MP3-TP-16P is connected");
+    } else {
+      intentos++;
+      Serial.print("Intento fallido: ");
+      Serial.println(intentos);
+      delay(2000);
+    }
+  }
+
+  if (!playerReady) {
+    Serial.println("ERROR: No se pudo conectar al DFPlayer");
   }
 }
 
@@ -41,7 +54,7 @@ void PlaySound(int audioIndex, float volume) {
 }
 
 void StopSound() {
-  if(!playerReady) return;
+  if (!playerReady) return;
   player.stop();
   delay(1000);
 }
