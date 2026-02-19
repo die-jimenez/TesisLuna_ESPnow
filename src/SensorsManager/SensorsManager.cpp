@@ -48,19 +48,6 @@ void SensorsManager::ResetAllSensors() {
   }
 }
 
-// ==================== TIMER
-void SensorsManager::RunTimeToPet(float deltaTime) {
-  timeToPet += deltaTime;
-}
-
-float SensorsManager::GetTimeToPet() {
-  return timeToPet;
-}
-
-void SensorsManager::ResetTimeToPet() {
-  timeToPet = 0;
-}
-
 // ==================== DEBUG
 void SensorsManager::DebugInteraction() {
   if (!showDebug) return;

@@ -3,7 +3,7 @@
 #include "src/CustomEspNow/CustomEspNow.h"
 #include "src/AudioPlayer/AudioPlayer.h"
 #include "src/Statue/Statue.h"
-#include "StateMachine.h"
+#include "StatueStateMachine.h"
 
 #include "src/DeltaTime/DeltaTime.h"
 #include "src/TouchSensor/TouchSensor.h"
@@ -35,15 +35,16 @@
 // MP3 module
 #define RXD2 16  // esp receiver (rx) --> module transciever (tx)
 #define TXD2 17  // D2 = segundo puerto serial, pero es solo nombre
+#define BUSY 5
 
 
 //Maquina de estados
 //===================================================
-#define ESPERANDO 0
-#define HAY_INTERACCION 1
-#define HAY_MIMITOS 2
-int state = 0;
-float cronometroToMimitos;
+// #define ESPERANDO 0
+// #define HAY_INTERACCION 1
+// #define HAY_MIMITOS 2
+// int state = 0;
+// float cronometroToMimitos;
 
 
 //Sensors
@@ -60,13 +61,13 @@ TouchSensor sensors[9] = {
   TouchSensor(SENSOR_31_PIN, 31),
   TouchSensor(SENSOR_32_PIN, 32)
 };
-const uint8_t SENSORS_COUNT = 9;  //Sensores activos. Evita pinouts de más
+const uint8_t SENSORS_COUNT = 1;  //Sensores activos. Evita pinouts de más
 SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 
 //Others
 //===================================================
 DeltaTime deltaTime;
-StateMachine stateMachine;
+StatueStateMachine statueStateMachine;
 
 //Debug
 //===================================================
@@ -78,27 +79,29 @@ int contadorMimitos;
 //===================================================
 Statue statue(Statue::StatueName::happy, LEDS_BOCA);
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-const float triggerToPetting = 5.0;       //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const float pettingTriggerTime = 5.0;       //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 
 
 
 
 void setup() {
   Serial.begin(115200);
-  Mp3ModuleInit(RXD2, TXD2);
+  //Mp3ModuleInit(RXD2, TXD2);
+  PlaySound(statue.TRACK_SONG_1);
+
   EspNowInit();
 
   //Sensors init
   sensorsManager.SetShowDebug(false);
   sensorsManager.InitSensors();
 
-
   //Leds
   statue.InitLeds();
   statue.TurnOnLEDs(true);
 
   //State Machine
-  stateMachine.Init(&statue, &sensorsManager, &deltaTime);
+  statueStateMachine.Init(&statue, &sensorsManager, &deltaTime);
+  statueStateMachine.GetAudioBusyPin(BUSY);
 
   delay(1000);
   Serial.println("setup is complete");
@@ -112,19 +115,19 @@ void loop() {
   //Sensors update
   sensorsManager.UpdateSensors(deltaTime.Get());
 
-  //Main state machine
+  //Maquina de estados de la estatua
   //===================================================
-  if (stateMachine.state == StateMachine::IDLE) {
-    stateMachine.UpdateIdle();
+  if (statueStateMachine.state == StatueStateMachine::IDLE) {
+    statueStateMachine.UpdateIdle();
   }  //
-  else if (stateMachine.state == StateMachine::INTERACTING) {
-    stateMachine.UpdateInteraction(triggerToPetting, MIN_SENSORS_ACTIVE_TO_PET);
-    PlaySound(statue.TRACK_SONG_1);
+  else if (statueStateMachine.state == StatueStateMachine::INTERACTING) {
+    statueStateMachine.UpdateInteraction(pettingTriggerTime, MIN_SENSORS_ACTIVE_TO_PET);
+    //PlaySound(statue.TRACK_SONG_1);
     delay(5000);//Debug
   }  //
-  else if (stateMachine.state == StateMachine::PETTING) {
-    stateMachine.UpdatePetting();
-    PlaySound(statue.TRACK_SONG_2);
+  else if (statueStateMachine.state == StatueStateMachine::PETTING) {
+    statueStateMachine.UpdatePetting();
+    //PlaySound(statue.TRACK_SONG_2);
     delay(5000);//Debug
   }
 
@@ -141,3 +144,4 @@ void loop() {
   deltaTime.Run();
   delay(5);
 }
+

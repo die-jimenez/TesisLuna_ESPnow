@@ -16,13 +16,3 @@ void Statue::TurnOnLEDs(bool val) {
   digitalWrite(LEDs, val);
 }
 
-
-void Statue::Enable() {
-  interactionEnabled = true;
-}
-void Statue::Disable() {
-  interactionEnabled = false;
-}
-bool Statue::IsEnabled() {
-  return interactionEnabled;
-}

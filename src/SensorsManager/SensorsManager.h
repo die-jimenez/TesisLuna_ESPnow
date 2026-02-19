@@ -10,7 +10,6 @@ private:
   TouchSensor* sensors;
   int sensorsCount;
 
-  float timeToPet = 0;
   int contadorInteraccion = 0;
   int contadorMimitos = 0;
 
@@ -28,12 +27,7 @@ public:
   bool areAllSensorsOff();
   void ResetAllSensors();
 
-  //Trigger to petting
-  void RunTimeToPet(float deltaTime);
-  float GetTimeToPet();
-
   //Debugs
-  void ResetTimeToPet();
   void SetShowDebug(bool _showDebug);
   void DebugInteraction();
   void DebugPetting();

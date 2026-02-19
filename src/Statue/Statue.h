@@ -8,22 +8,7 @@ private:
   //Setting and songs
   //===================================================
   int LEDs;
-
-  //Main States
-  //===================================================
-  bool interactionEnabled = true;
-  bool isSinging = false;
-
-  //Intercation
-  //===================================================
-  enum InteractionState {
-    NONE,
-    MIMITOS_STARTED,
-    MIMITOS_COMPLETED
-  };
-  InteractionState interactionState = InteractionState::NONE;
-
-
+  float timeLightFlickering;
 
 public:
   enum AudiosTrack {
@@ -46,10 +31,6 @@ public:
   //LEDs
   void InitLeds();
   void TurnOnLEDs(bool val);
-
-  void Enable();
-  void Disable();
-  bool IsEnabled();
 };
 
 
