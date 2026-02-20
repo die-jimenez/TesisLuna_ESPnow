@@ -2,9 +2,10 @@
 #define __STATUESTATEMACHINE_H__
 
 #include <Arduino.h>
-#include "src/Statue/Statue.h"
+#include "src/Lights/Lights.h"
 #include "src/DeltaTime/DeltaTime.h"
 #include "src/AudioPlayer/AudioPlayer.h"
+#include "src/StatueSetting/StatueSetting.h"
 #include "src/SensorsManager/SensorsManager.h"
 
 
@@ -12,14 +13,15 @@ class StatueStateMachine {
 private:
   //Objects
   //===================================================
-  Statue* statue;
-  DeltaTime* deltaTime;
+  StatueSetting* statueSetting;
   SensorsManager* sensorsManager;
+  DeltaTime* deltaTime;
+  Lights* lights;
 
   //States
   //===================================================
   bool isSinging = false;
-  bool interactionEnabled = false;
+  bool canInteract = false;
 
   //Audio
   //===================================================
@@ -39,11 +41,12 @@ public:
     PETTING
   };
   State state = IDLE;
+  bool onHappyEnding = false;
 
   //Init
   //===================================================
   StatueStateMachine();
-  void Init(Statue* _statue, SensorsManager* _sensorsManager, DeltaTime* _deltaTime);
+  void Init(StatueSetting* _statueSetting, SensorsManager* _sensorsManager, Lights* _lights, DeltaTime* _deltaTime);
   void GetAudioBusyPin(int pin);
 
   //State Update
@@ -55,11 +58,9 @@ public:
 
   //Handle Interaction State
   //===================================================
-  void EnableInteraction();
-  void DisableInteraction();
-  bool IsEnabledInteraction();
+  void SetCanInteract(bool _canInteract);
+  bool GetCanInteract();
   bool IsPlayingAudio();
-
   void ResetAll();
 };
 

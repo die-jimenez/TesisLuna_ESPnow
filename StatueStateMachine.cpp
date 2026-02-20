@@ -2,15 +2,16 @@
 
 // ==================== INIT
 StatueStateMachine::StatueStateMachine() {
-  statue = nullptr;
+  statueSetting = nullptr;
   sensorsManager = nullptr;
   deltaTime = nullptr;
 }
 
-void StatueStateMachine::Init(Statue* _statue, SensorsManager* _sensorsManager, DeltaTime* _deltaTime) {
-  statue = _statue;
+void StatueStateMachine::Init(StatueSetting* _statueSetting, SensorsManager* _sensorsManager, Lights* _lights, DeltaTime* _deltaTime) {
+  statueSetting = _statueSetting;
   sensorsManager = _sensorsManager;
   deltaTime = _deltaTime;
+  lights = _lights;
 }
 
 void StatueStateMachine::GetAudioBusyPin(int pin) {
@@ -32,7 +33,7 @@ void StatueStateMachine::ChangeState(State newState) {
 }
 
 void StatueStateMachine::UpdateIdle() {
-  statue->TurnOnLEDs(LOW);
+  lights->TurnOn(LOW);
   //Check if at any sensor has a stable touch
   if (!sensorsManager->areAllSensorsOff()) {
     ChangeState(INTERACTING);
@@ -42,7 +43,7 @@ void StatueStateMachine::UpdateIdle() {
 }
 
 void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSensorsToPet) {
-  statue->TurnOnLEDs(HIGH);
+  lights->TurnOn(HIGH);
 
   bool canStartRunningTime = sensorsManager->areMultipleSensorsOn(minSensorsToPet);
   if (canStartRunningTime) {
@@ -53,7 +54,7 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
   if (canChangeToPetting) {
     ChangeState(PETTING);
     sensorsManager->DebugPetting();
-    PlaySound(statue->TRACK_SONG_1);
+    PlaySound(statueSetting->TRACK_SONG_1);
     // SendToServerFormated("IniciarMimitos");
     return;
   }
@@ -66,7 +67,7 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
 }
 
 void StatueStateMachine::UpdatePetting() {
-  statue->TurnOnLEDs(HIGH);
+  lights->TurnOn(HIGH);
   bool canChangeToIdle = sensorsManager->areAllSensorsOff();  //-----> DEBUG
   //bool canChangeToIdle = !IsPlayingAudio();
   if (canChangeToIdle) {
@@ -77,19 +78,15 @@ void StatueStateMachine::UpdatePetting() {
 }
 
 // ==================== HANDLE INTERACTION STATE
-void StatueStateMachine::EnableInteraction() {
-  interactionEnabled = true;
+void StatueStateMachine::SetCanInteract(bool _canInteract) {
+  canInteract = _canInteract;
 }
-void StatueStateMachine::DisableInteraction() {
-  interactionEnabled = false;
-}
-bool StatueStateMachine::IsEnabledInteraction() {
-  return interactionEnabled;
+bool StatueStateMachine::GetCanInteract() {
+  return canInteract;
 }
 bool StatueStateMachine::IsPlayingAudio() {
   return digitalRead(audioBusyPin);
 }
-
 
 
 void StatueStateMachine::ResetAll() {

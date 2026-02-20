@@ -2,6 +2,8 @@
 #define __CUSTOMESPNOW_H__
 #include <Arduino.h>
 
+const int PublicPassword = 2306;
+
 // ====== STRUCT DEL MENSAJE ======
 // Debe ser igual en emisor y receptor
 struct EspNowMessage {
@@ -9,6 +11,7 @@ struct EspNowMessage {
   int stage;
   int statueEnabled;
   bool isReadyToHappyEnding;
+  int publicPassword;
 };
 
 extern EspNowMessage myData;

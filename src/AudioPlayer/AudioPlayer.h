@@ -11,6 +11,6 @@ void PlaySound(int audioIndex);
 void PlaySound(int audioIndex, float volume);
 void StopSound();
 
-bool AudioFileExists(const char *filePath);
+bool AudioFileExists(int filePath);
 
 #endif

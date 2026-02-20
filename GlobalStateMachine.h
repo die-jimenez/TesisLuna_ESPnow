@@ -2,37 +2,24 @@
 #define __GLOBALSTATEMACHINE_H__
 
 #include <Arduino.h>
+#include "StatueStateMachine.h"
 #include "src/AudioPlayer/AudioPlayer.h"
 #include "src/CustomEspNow/CustomEspNow.h"
+#include "src/StatueSetting/StatueSetting.h"
 #include "src/DeltaTime/DeltaTime.h"
 
 class GlobalStateMachine {
 
-public:
-  enum Fase { STANDBY, DESARROLLO, FINAL };
-  enum Escultura { FELIZ, TRISTE };
-
-  struct SyncData {
-    Fase faseActual;
-    Escultura esculturaInteractuable;
-    bool felizListoParaFinal;
-    bool tristeListoParaFinal;
-  };
-
 private:
-  //Objects
-  //===================================================
   DeltaTime* deltaTime;
+  StatueStateMachine* statueStateMachine;
+  int statueName = 100;
 
-  //Data
-  //===================================================
-  SyncData syncData;
-  int statue = 100;
-
-  //Timers
-  //===================================================
-  float timerLuces = 0;
-  bool pendingLucesApagar = false;
+    enum StatuesEnabled {
+      HAPPY_ENABLED,
+      SAD_ENABLED, 
+      BOTH_ENABLED
+  };
 
   //Phases
   //===================================================
@@ -42,28 +29,25 @@ private:
   void PrepararFinal();
   void EjecutarFinal();
 
-  //Sync
-  //===================================================
-  void SyncToOther();
 
 public:
+  enum Stages {
+    STANDBY,
+    INTRO,
+    DESARROLLO,
+    FINAL
+  };
+  Stages stage = STANDBY;
+
+
   //Init
   //===================================================
   GlobalStateMachine();
-  void Init(int _statue, DeltaTime* _deltaTime);
+  void Init(int _statueName, StatueStateMachine* _statueStateMachine, DeltaTime* _deltaTime);
 
-  //Update
   //===================================================
-  void UpdateTimers();
-
-  //Events (called from StatueStateMachine)
-  //===================================================
-  void OnInteraccion();
-  void OnMimitos();
-
-  //Receive (called from EspNow callback)
-  //===================================================
-  void OnReceiveData(const EspNowMessage& msg);
+  void OnReciveMessage(const EspNowMessage& data);
+  void OnSendMessage(const EspNowMessage& otherData);
 };
 
 #endif

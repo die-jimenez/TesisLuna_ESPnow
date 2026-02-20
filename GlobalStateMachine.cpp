@@ -5,39 +5,37 @@ GlobalStateMachine::GlobalStateMachine() {
   deltaTime = nullptr;
 }
 
-void GlobalStateMachine::Init(int _statue, DeltaTime* _deltaTime) {
-  statue = _statue;
+void GlobalStateMachine::Init(int _statueName, StatueStateMachine* _statueStateMachine, DeltaTime* _deltaTime) {
+  statueName = _statueName;
   deltaTime = _deltaTime;
-  syncData = { STANDBY, FELIZ, false, false };
+  statueStateMachine = _statueStateMachine;
 }
 
 
-
-
-// ==================== UPDATE
-void GlobalStateMachine::UpdateTimers() {
-  if (!pendingLucesApagar) return;
-  timerLuces -= deltaTime->Get();
-  if (timerLuces <= 0) {
-    pendingLucesApagar = false;
-    // TODO: apagar luces
+void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
+  if (otherData.publicPassword != PublicPassword) {
+    Serial.println("Llego un mensaje con la contraseña publica incorrecta");
+    return;
   }
+  //Cambia el Stage
+  if (otherData.stage >= 0 && otherData.stage <= FINAL) {
+    stage = (Stages)otherData.stage;
+  }
+  //Activa o desactiva las esculturas
+  if (otherData.statueEnabled == BOTH_ENABLED) {
+    statueStateMachine->SetCanInteract(true);
+  } else {
+    statueStateMachine->SetCanInteract(statueName == otherData.statueEnabled);
+  }
+  //Preprara el final feliz o no
+  statueStateMachine->onHappyEnding = otherData.isReadyToHappyEnding;
 }
 
 
-
-
-// ==================== EVENTS
-void GlobalStateMachine::OnInteraccion() {
-  //PlaySound(TRACK_PURR_COMPLAIN);
+void GlobalStateMachine::OnSendMessage(const EspNowMessage& myData) {
+  bool shouldSenderKeepEnabled = myData.statueEnabled == BOTH_ENABLED;
+  statueStateMachine->SetCanInteract(myData.statueEnabled == shouldSenderKeepEnabled);
 }
-
-void GlobalStateMachine::OnMimitos() {
-  if (syncData.faseActual == STANDBY)      PrimerosMimitos();
-  else if (syncData.faseActual == DESARROLLO) MimitosDesarrollo();
-  else if (syncData.faseActual == FINAL)      MimitosFinal();
-}
-
 
 
 

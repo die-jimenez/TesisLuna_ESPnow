@@ -40,7 +40,9 @@ void Mp3ModuleInit(int RX, int TX) {
 
 void PlaySound(int audioIndex) {
   if (!playerReady) return;
-  if (!AudioFileExists) return;
+  Serial.println("Primer check");
+  //if (!AudioFileExists(audioIndex)) return;
+  Serial.println("Segundo check");
 
   player.play(audioIndex);
   Serial.print("Audio played: ");

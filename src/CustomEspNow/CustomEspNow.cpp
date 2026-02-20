@@ -66,6 +66,7 @@ void SetEspNowMessage(int name, int stage, int statueEnabled, bool isReadyToHapp
   myData.stage = stage;
   myData.statueEnabled = statueEnabled;
   myData.isReadyToHappyEnding = isReadyToHappyEnding;
+  myData.publicPassword = PublicPassword;
 }
 
 void EspNowSendExample() {
@@ -73,9 +74,10 @@ void EspNowSendExample() {
   myData.stage = 1;
   myData.statueEnabled = 0;
   myData.isReadyToHappyEnding = false;
+  myData.publicPassword = PublicPassword;
 
   // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t*)&dataExample, sizeof(EspNowMessage));
+  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t*)&myData, sizeof(EspNowMessage));
 
   if (result == ESP_OK) {
     Serial.println("Sent with success");
