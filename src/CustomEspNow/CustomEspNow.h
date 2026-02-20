@@ -5,17 +5,19 @@
 // ====== STRUCT DEL MENSAJE ======
 // Debe ser igual en emisor y receptor
 struct EspNowMessage {
-  String name; 
-  String state;
-  int songIndex;
-  String debug;
+  int name;
+  int stage;
+  int statueEnabled;
+  bool isReadyToHappyEnding;
 };
 
-extern EspNowMessage dataExample; 
+extern EspNowMessage myData;
 extern EspNowMessage otherData;
+extern EspNowMessage dataExample; 
 
 void EspNowInit();
 void EspNowSend(const EspNowMessage& data);
+void SetMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding);
 void EspNowSendExample();
 void EspNowPrintReceiveData();
 

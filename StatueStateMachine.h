@@ -1,4 +1,3 @@
-// StatueStateMachine.h
 #ifndef __STATUESTATEMACHINE_H__
 #define __STATUESTATEMACHINE_H__
 

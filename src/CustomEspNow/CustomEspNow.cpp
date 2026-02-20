@@ -7,6 +7,7 @@
 // ====== DIRECCIÓN DE ENVÍO ======
 uint8_t broadcastAddress[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };  //REPLACE WITH YOUR RECEIVER MAC Address
 
+EspNowMessage myData;
 EspNowMessage otherData;
 EspNowMessage dataExample;
 static esp_now_peer_info_t peerInfo;
@@ -60,16 +61,18 @@ void EspNowSend(const EspNowMessage& data) {
   }
 }
 
-void EspNowSendExample() {
-  // strcpy(dataExample.a, "THIS IS A CHAR");
-  // dataExample.b = random(1, 20);
-  // dataExample.c = 1.2;
-  // dataExample.d = false;
+void SetEspNowMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding) {
+  myData.name = name;
+  myData.stage = stage;
+  myData.statueEnabled = statueEnabled;
+  myData.isReadyToHappyEnding = isReadyToHappyEnding;
+}
 
-  dataExample.name = "cualquiera";
-  dataExample.state = "cantando";
-  dataExample.songIndex = 1;
-  dataExample.debug = "Todo ok";
+void EspNowSendExample() {
+  myData.name = 100;
+  myData.stage = 1;
+  myData.statueEnabled = 0;
+  myData.isReadyToHappyEnding = false;
 
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t*)&dataExample, sizeof(EspNowMessage));
@@ -84,11 +87,11 @@ void EspNowSendExample() {
 void EspNowPrintReceiveData() {
   Serial.print("Name: ");
   Serial.println(otherData.name);
-  Serial.print("State: ");
-  Serial.println(otherData.state);
-  Serial.print("Song index: ");
-  Serial.println(otherData.songIndex);
-  Serial.print("Debug: ");
-  Serial.println(otherData.debug);
+  Serial.print("Stage: ");
+  Serial.println(otherData.stage);
+  Serial.print("Current statue enabled: ");
+  Serial.println(otherData.statueEnabled);
+  Serial.print("Is ready to happy ending: ");
+  Serial.println(otherData.isReadyToHappyEnding);
   Serial.println();
 }
