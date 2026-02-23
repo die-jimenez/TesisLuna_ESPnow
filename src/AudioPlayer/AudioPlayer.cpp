@@ -14,7 +14,7 @@ DFPlayer player;
 void Mp3ModuleInit(int RX, int TX) {
   dfSD.begin(9600, SERIAL_8N1, RX, TX);
   Serial.println("Trying to start comunication with mp3");
-  delay(5000);
+  delay(3000);
 
 #ifdef AUDIO_MODULE_DFP
   int intentos = 0;
@@ -35,23 +35,11 @@ void Mp3ModuleInit(int RX, int TX) {
 #endif
 
 #ifdef AUDIO_MODULE_HW247
-  int intentos = 0;
-  const int MAX_INTENTOS = 5;
-  while (!playerReady && intentos < MAX_INTENTOS) {
-    player.begin(dfSD, DFPLAYER_HW_247A);  //No devuelve bool
-    player.setVolume(20);
-
-    if (player.getStatus() != 0) {
-      playerReady = true;
-      Serial.println("HW247A is connected");
-    } else {
-      intentos++;
-      Serial.print("Intento fallido: ");
-      Serial.println(intentos);
-      delay(2000);
-    }
-  }
-  if (!playerReady) Serial.println("ERROR: No se pudo conectar al DFPlayer");
+  player.begin(dfSD, DFPLAYER_HW_247A);
+  Serial.println("HW247A is connected");
+  playerReady = true;
+  delay(500);
+  player.setVolume(20);
 #endif
 }
 
@@ -79,6 +67,7 @@ void PlaySound(int audioIndex, float volume) {
   player.setVolume(volume);
 #endif
 
+  delay(500);
   PlaySound(audioIndex);
 }
 
