@@ -19,8 +19,6 @@ void StatueStateMachine::GetAudioBusyPin(int pin) {
 }
 
 
-
-
 // ==================== STATE UPDATE
 void StatueStateMachine::ChangeState(State newState) {
   Serial.print("Nuevo estado: ");
@@ -33,7 +31,7 @@ void StatueStateMachine::ChangeState(State newState) {
 }
 
 void StatueStateMachine::UpdateIdle() {
-  lights->TurnOn(LOW);
+  lights->TurnOn(LOW);//PARPADEARRRRRRRR!!!!!!!!!!!!!!!!!!
   //Check if at any sensor has a stable touch
   if (!sensorsManager->areAllSensorsOff()) {
     ChangeState(INTERACTING);
@@ -55,6 +53,11 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
     ChangeState(PETTING);
     sensorsManager->DebugPetting();
     PlaySound(statueSetting->TRACK_SONG_1);
+
+    //Preparar el final 
+    if (onEndingTriggeredCallback != nullptr) {
+      onEndingTriggeredCallback();
+    }
     // SendToServerFormated("IniciarMimitos");
     return;
   }
@@ -71,8 +74,13 @@ void StatueStateMachine::UpdatePetting() {
   bool canChangeToIdle = sensorsManager->areAllSensorsOff();  //-----> DEBUG
   //bool canChangeToIdle = !IsPlayingAudio();
   if (canChangeToIdle) {
+    //Enviar mensaje a la otra escultura
+    if (onAudioFinishedCallback != nullptr) {
+      onAudioFinishedCallback();
+    }
     ChangeState(IDLE);
     ResetAll();
+    
     Serial.println("El cambio de estados de Pettign a Idle esta usando un cambio de estado para debug");
   }
 }
@@ -92,4 +100,13 @@ bool StatueStateMachine::IsPlayingAudio() {
 void StatueStateMachine::ResetAll() {
   timeInteracting = 0;
   sensorsManager->ResetAllSensors();
+}
+
+
+// ==================== Events to send message through EspNow
+void StatueStateMachine::RegisterOnEndingTriggered(StatueStateMachine::OnEndingTriggeredCallback fn) {
+  onEndingTriggeredCallback = fn;
+}
+void StatueStateMachine::RegisterOnAudioFinished(StatueStateMachine::OnAudioFinishedCallback fn) {
+  onAudioFinishedCallback = fn;
 }

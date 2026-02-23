@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include "StatueStateMachine.h"
-#include "src/AudioPlayer/AudioPlayer.h"
 #include "src/CustomEspNow/CustomEspNow.h"
 #include "src/StatueSetting/StatueSetting.h"
 #include "src/DeltaTime/DeltaTime.h"
@@ -15,10 +14,10 @@ private:
   StatueStateMachine* statueStateMachine;
   int statueName = 100;
 
-    enum StatuesEnabled {
-      HAPPY_ENABLED,
-      SAD_ENABLED, 
-      BOTH_ENABLED
+  enum StatuesEnabled {
+    HAPPY_ENABLED,
+    SAD_ENABLED,
+    BOTH_ENABLED
   };
 
   //Phases
@@ -39,15 +38,20 @@ public:
   };
   Stages stage = STANDBY;
 
-
   //Init
   //===================================================
   GlobalStateMachine();
   void Init(int _statueName, StatueStateMachine* _statueStateMachine, DeltaTime* _deltaTime);
 
+  //Events on CustomEspNow
   //===================================================
   void OnReciveMessage(const EspNowMessage& data);
   void OnSendMessage(const EspNowMessage& otherData);
+
+  //Events on StatueStateMachine
+  //===================================================
+  void OnEndingTriggered();
+  void OnAudioFinished();
 };
 
 #endif

@@ -11,7 +11,8 @@ void GlobalStateMachine::Init(int _statueName, StatueStateMachine* _statueStateM
   statueStateMachine = _statueStateMachine;
 }
 
-
+//Events on CustomEspNow
+//===================================================
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   if (otherData.publicPassword != PublicPassword) {
     Serial.println("Llego un mensaje con la contraseña publica incorrecta");
@@ -30,12 +31,22 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   //Preprara el final feliz o no
   statueStateMachine->onHappyEnding = otherData.isReadyToHappyEnding;
 }
-
-
 void GlobalStateMachine::OnSendMessage(const EspNowMessage& myData) {
   bool shouldSenderKeepEnabled = myData.statueEnabled == BOTH_ENABLED;
   statueStateMachine->SetCanInteract(myData.statueEnabled == shouldSenderKeepEnabled);
 }
+
+//Events on StatueStateMachine
+//===================================================
+void GlobalStateMachine::OnEndingTriggered() {
+  EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+}
+void GlobalStateMachine::OnAudioFinished() {
+  EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+}
+
+
+
 
 
 

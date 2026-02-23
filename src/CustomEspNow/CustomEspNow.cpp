@@ -13,21 +13,37 @@ EspNowMessage dataExample;
 static esp_now_peer_info_t peerInfo;
 
 // ====== CALLBACK ======
-static void OnDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
-  Serial.print("\r\nLast Packet Send Status:\t");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+static OnReceiveCallback onReceiveCallback;
+static OnSendCallback onSendCallback;
+void EspNowRegisterOnReceive(OnReceiveCallback fn) {
+  onReceiveCallback = fn;
 }
+void EspNowRegisterOnSend(OnSendCallback fn) {
+  onSendCallback = fn;
+}
+
+// void OnDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
+//   Serial.print("\r\nLast Packet Send Status:\t");
+//   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+// }
 
 void OnDataRecv(const uint8_t* mac, const uint8_t* incomingData, int len) {
   memcpy(&otherData, incomingData, sizeof(otherData));
   EspNowPrintReceiveData();
+
+  if (otherData.publicPassword != PublicPassword) {
+    Serial.println("Mensaje rechazado: contraseña incorrecta");
+    return;
+  }
+  if (onReceiveCallback != nullptr) onReceiveCallback(otherData);
 }
+// ===============================================
+
 
 void EspNowInit() {
   WiFi.mode(WIFI_STA);
   Serial.print("MAC Addres: ");
   Serial.println(WiFi.macAddress());
-
 
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK) {
@@ -36,7 +52,7 @@ void EspNowInit() {
   }
 
   //Register callbacks
-  esp_now_register_send_cb(OnDataSent);  //Send callack
+  //esp_now_register_send_cb(OnDataSent);  //Send callack
   esp_now_register_recv_cb(OnDataRecv);  //Recive callback
 
   // Register peer
@@ -53,6 +69,7 @@ void EspNowInit() {
 void EspNowSend(const EspNowMessage& data) {
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t*)&data, sizeof(EspNowMessage));
+  if (onSendCallback != nullptr) onSendCallback(data);
 
   if (result == ESP_OK) {
     Serial.println("Sent with success");
@@ -61,12 +78,18 @@ void EspNowSend(const EspNowMessage& data) {
   }
 }
 
-void SetEspNowMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding) {
+void EspNowSetMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding) {
+  Serial.println("myData to Send updated");
   myData.name = name;
   myData.stage = stage;
   myData.statueEnabled = statueEnabled;
   myData.isReadyToHappyEnding = isReadyToHappyEnding;
   myData.publicPassword = PublicPassword;
+}
+
+void EspNowSetAndSendMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding) {
+  EspNowSetMessage(name, stage, statueEnabled, isReadyToHappyEnding);
+  EspNowSend(myData);
 }
 
 void EspNowSendExample() {

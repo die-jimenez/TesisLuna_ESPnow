@@ -4,7 +4,10 @@
 #include "src/AudioPlayer/AudioPlayer.h"
 #include "src/StatueSetting/StatueSetting.h"
 #include "src/Lights/Lights.h"
+
+
 #include "StatueStateMachine.h"
+#include "GlobalStateMachine.h"
 
 #include "src/DeltaTime/DeltaTime.h"
 #include "src/TouchSensor/TouchSensor.h"
@@ -59,7 +62,11 @@ SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 //===================================================
 Lights lights(LEDS_BOCA, LEDS_ENTORNO);
 DeltaTime deltaTime;
+
+//States machines
+//===================================================
 StatueStateMachine statueStateMachine;
+GlobalStateMachine globalStateMachine;
 
 //Debug
 //===================================================
@@ -71,18 +78,34 @@ int contadorMimitos;
 //===================================================
 StatueSetting statueSetting(StatueSetting::Name::HAPPY);
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-const float pettingTriggerTime = 5.0;       //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const float pettingTriggerTime = 5.0;     //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 
 
 
 
 void setup() {
   Serial.begin(115200);
+
+  //State Machine
+  statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);
+  statueStateMachine.RegisterOnEndingTriggered(OnEndingTriggered);
+  statueStateMachine.RegisterOnAudioFinished(OnAudioFinished);
+  statueStateMachine.GetAudioBusyPin(BUSY);
+
+  //Global state machine
+  globalStateMachine.Init(statueSetting.name, &statueStateMachine, &deltaTime);
+  EspNowRegisterOnReceive(OnReceiveData);
+  EspNowRegisterOnSend(OnSendData);
+
+  //Esp now
+  EspNowInit();
+  EspNowRegisterOnSend(OnSendData);
+  EspNowRegisterOnReceive(OnReceiveData);
+
+  //Audio module
   Mp3ModuleInit(RXD2, TXD2);
   delay(1000);
   PlaySound(1);
-
-  EspNowInit();
 
   //Sensors init
   sensorsManager.SetShowDebug(false);
@@ -91,10 +114,6 @@ void setup() {
   //Leds
   lights.Init();
   lights.TurnOn(true);
-
-  //State Machine
-  statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);
-  statueStateMachine.GetAudioBusyPin(BUSY);
 
   delay(1000);
   Serial.println("setup is complete");
@@ -121,7 +140,7 @@ void loop() {
   else if (statueStateMachine.state == StatueStateMachine::PETTING) {
     statueStateMachine.UpdatePetting();
     //PlaySound(statue.TRACK_SONG_2);
-    delay(5000);//Debug
+    delay(5000);  //Debug
   }
 
   //Debug
@@ -138,3 +157,19 @@ void loop() {
   delay(5);
 }
 
+
+//Estos son los metodos custom para utilizar CustomEspNow
+void OnReceiveData(const EspNowMessage& data) {
+  globalStateMachine.OnReciveMessage(data);
+}
+
+void OnSendData(const EspNowMessage& data) {
+  globalStateMachine.OnSendMessage(data);
+}
+
+void OnEndingTriggered() {
+  globalStateMachine.OnEndingTriggered();
+}
+void OnAudioFinished() {
+  globalStateMachine.OnAudioFinished();
+}

@@ -31,6 +31,13 @@ private:
   //===================================================
   float timeInteracting = 0;
 
+  //Eventos
+  //===================================================
+  typedef void (*OnEndingTriggeredCallback)();
+  typedef void (*OnAudioFinishedCallback)();
+  OnEndingTriggeredCallback onEndingTriggeredCallback = nullptr;
+  OnAudioFinishedCallback onAudioFinishedCallback = nullptr;
+
 
 public:
   //Main States
@@ -62,6 +69,12 @@ public:
   bool GetCanInteract();
   bool IsPlayingAudio();
   void ResetAll();
+
+
+  //Events to send message through EspNow
+  //===================================================
+  void RegisterOnEndingTriggered(OnEndingTriggeredCallback fn);
+  void RegisterOnAudioFinished(OnAudioFinishedCallback fn);
 };
 
 #endif
