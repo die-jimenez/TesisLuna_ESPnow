@@ -14,10 +14,6 @@ void StatueStateMachine::Init(StatueSetting* _statueSetting, SensorsManager* _se
   lights = _lights;
 }
 
-void StatueStateMachine::GetAudioBusyPin(int pin) {
-  audioBusyPin = pin;
-}
-
 
 // ==================== STATE UPDATE
 void StatueStateMachine::ChangeState(State newState) {
@@ -31,7 +27,7 @@ void StatueStateMachine::ChangeState(State newState) {
 }
 
 void StatueStateMachine::UpdateIdle() {
-  lights->TurnOn(LOW);//PARPADEARRRRRRRR!!!!!!!!!!!!!!!!!!
+  lights->TurnOn(LOW);  //PARPADEARRRRRRRR!!!!!!!!!!!!!!!!!!
   //Check if at any sensor has a stable touch
   if (!sensorsManager->areAllSensorsOff()) {
     ChangeState(INTERACTING);
@@ -67,8 +63,11 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
 
 void StatueStateMachine::UpdatePetting() {
   lights->TurnOn(HIGH);
-  bool canChangeToIdle = sensorsManager->areAllSensorsOff();  //-----> DEBUG
-  //bool canChangeToIdle = !IsPlayingAudio();
+  //bool canChangeToIdle = sensorsManager->areAllSensorsOff();  //-----> DEBUG
+  //Serial.println("El cambio de estados de Pettign a Idle esta usando un cambio de estado para debug");
+
+  bool canChangeToIdle = IsPlayingAudio();
+  //Serial.println(IsPlayingAudio());
   if (canChangeToIdle) {
     //Enviar mensaje a la otra escultura
     if (onAudioFinishedCallback != nullptr) {
@@ -76,8 +75,6 @@ void StatueStateMachine::UpdatePetting() {
     }
     ChangeState(IDLE);
     ResetAll();
-    
-    Serial.println("El cambio de estados de Pettign a Idle esta usando un cambio de estado para debug");
   }
 }
 
@@ -87,9 +84,6 @@ void StatueStateMachine::SetCanInteract(bool _canInteract) {
 }
 bool StatueStateMachine::GetCanInteract() {
   return canInteract;
-}
-bool StatueStateMachine::IsPlayingAudio() {
-  return digitalRead(audioBusyPin);
 }
 
 

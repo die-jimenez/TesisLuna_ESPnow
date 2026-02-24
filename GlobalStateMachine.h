@@ -12,13 +12,6 @@ class GlobalStateMachine {
 private:
   DeltaTime* deltaTime;
   StatueStateMachine* statueStateMachine;
-  int statueName = 100;
-
-  enum StatuesEnabled {
-    HAPPY_ENABLED,
-    SAD_ENABLED,
-    BOTH_ENABLED
-  };
 
   //Phases
   //===================================================
@@ -27,6 +20,14 @@ private:
   void MimitosFinal();
   void PrepararFinal();
   void EjecutarFinal();
+
+  enum StatuesEnabled {
+    HAPPY_ENABLED,
+    SAD_ENABLED,
+    BOTH_ENABLED
+  };
+  StatuesEnabled statueEnabled = BOTH_ENABLED;
+  StatueSetting* statueSetting;
 
 
 public:
@@ -41,7 +42,7 @@ public:
   //Init
   //===================================================
   GlobalStateMachine();
-  void Init(int _statueName, StatueStateMachine* _statueStateMachine, DeltaTime* _deltaTime);
+  void Init(StatueSetting* _statueSetting, StatueStateMachine* _statueStateMachine, DeltaTime* _deltaTime);
 
   //Events on CustomEspNow
   //===================================================
@@ -52,6 +53,8 @@ public:
   //===================================================
   void OnPettingStarted();
   void OnAudioFinished();
+
+  void PrintInfo();
 };
 
 #endif

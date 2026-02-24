@@ -23,10 +23,6 @@ private:
   bool isSinging = false;
   bool canInteract = false;
 
-  //Audio
-  //===================================================
-  float audioBusyPin;
-
   //Cronometros
   //===================================================
   float timeInteracting = 0;
@@ -54,7 +50,6 @@ public:
   //===================================================
   StatueStateMachine();
   void Init(StatueSetting* _statueSetting, SensorsManager* _sensorsManager, Lights* _lights, DeltaTime* _deltaTime);
-  void GetAudioBusyPin(int pin);
 
   //State Update
   //===================================================
@@ -67,7 +62,6 @@ public:
   //===================================================
   void SetCanInteract(bool _canInteract);
   bool GetCanInteract();
-  bool IsPlayingAudio();
   void ResetAll();
 
 

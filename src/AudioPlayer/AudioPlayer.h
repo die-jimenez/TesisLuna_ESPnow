@@ -20,10 +20,10 @@
 #include "DFPlayer.h"
 #endif
 
-void Mp3ModuleInit(int RX, int TX);
+void Mp3ModuleInit(int RX, int TX, int BUSY);
 void PlaySound(int audioIndex);
 void PlaySound(int audioIndex, float volume);
 void StopSound();
-bool IsPlayingAudio(int busyPin);
+bool IsPlayingAudio();
 
 #endif

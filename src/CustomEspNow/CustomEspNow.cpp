@@ -22,13 +22,14 @@ void EspNowRegisterOnSend(OnSendCallback fn) {
   onSendCallback = fn;
 }
 
-// void OnDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
-//   Serial.print("\r\nLast Packet Send Status:\t");
-//   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-// }
+void OnDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+}
 
 void OnDataRecv(const uint8_t* mac, const uint8_t* incomingData, int len) {
   memcpy(&otherData, incomingData, sizeof(otherData));
+  Serial.println("MENSAJE RECIBIDO");
   EspNowPrintReceiveData();
 
   if (otherData.publicPassword != PublicPassword) {
@@ -110,7 +111,6 @@ void EspNowSendExample() {
 }
 
 void EspNowPrintSendData() {
-  Serial.println();
   Serial.println("--------------------------------------------");
 
   Serial.print("Name: ");

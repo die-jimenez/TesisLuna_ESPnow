@@ -5,10 +5,11 @@ GlobalStateMachine::GlobalStateMachine() {
   deltaTime = nullptr;
 }
 
-void GlobalStateMachine::Init(int _statueName, StatueStateMachine* _statueStateMachine, DeltaTime* _deltaTime) {
-  statueName = _statueName;
+void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine* _statueStateMachine, DeltaTime* _deltaTime) {
+  statueSetting = _statueSetting;
   deltaTime = _deltaTime;
   statueStateMachine = _statueStateMachine;
+  PrintInfo();
 }
 
 //Events on CustomEspNow
@@ -23,11 +24,13 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
     stage = (Stages)otherData.stage;
   }
   //Activa o desactiva las esculturas
+  statueEnabled = (StatuesEnabled)otherData.statueEnabled;
   if (otherData.statueEnabled == BOTH_ENABLED) {
     statueStateMachine->SetCanInteract(true);
   } else {
-    statueStateMachine->SetCanInteract(statueName == otherData.statueEnabled);
+    statueStateMachine->SetCanInteract(statueSetting->name == otherData.statueEnabled);
   }
+
   //Preprara el final feliz o no
   statueStateMachine->onHappyEnding = otherData.isReadyToHappyEnding;
 }
@@ -42,22 +45,22 @@ void GlobalStateMachine::OnAudioFinished() {
   // El triste avanza el stage, el feliz solo pasa el turno
   switch (stage) {
     case (int)Stages::STANDBY:
-      if (statueName == StatueSetting::Name::SAD) {
+      if (statueSetting->name == StatueSetting::Name::SAD) {
         stage = Stages::INTRO;
-        EspNowSetAndSendMessage(statueName, (int)stage, HAPPY_ENABLED, false);
-      } else EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+        EspNowSetAndSendMessage(statueSetting->name, (int)stage, HAPPY_ENABLED, false);
+      } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
       break;
     case (int)Stages::INTRO:
-      if (statueName == StatueSetting::Name::SAD) {
+      if (statueSetting->name == StatueSetting::Name::SAD) {
         stage = Stages::DESARROLLO;
-        EspNowSetAndSendMessage(statueName, (int)stage, HAPPY_ENABLED, false);
-      } else EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+        EspNowSetAndSendMessage(statueSetting->name, (int)stage, HAPPY_ENABLED, false);
+      } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
       break;
     case (int)Stages::DESARROLLO:
-    if (statueName == StatueSetting::Name::SAD) {
+      if (statueSetting->name == StatueSetting::Name::SAD) {
         stage = Stages::FINAL;
-        EspNowSetAndSendMessage(statueName, (int)stage, BOTH_ENABLED, false);
-      } else EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+        EspNowSetAndSendMessage(statueSetting->name, (int)stage, BOTH_ENABLED, false);
+      } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
       break;
     case (int)Stages::FINAL:
       break;
@@ -80,10 +83,41 @@ void GlobalStateMachine::OnPettingStarted() {
       break;
   }
 
-  PlaySound(1);
   if (stage == Stages::FINAL) {
-    EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+    EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
   }
+}
+
+
+void GlobalStateMachine::PrintInfo() {
+  Serial.println();
+  Serial.println("--------------------------------------------");
+
+  Serial.print("Name: ");
+  switch ((int)statueSetting->name) {
+    case 0: Serial.println("HAPPY"); break;
+    case 1: Serial.println("SAD"); break;
+    default: Serial.println(myData.name); break;
+  }
+  Serial.print("Stage: ");
+  switch ((int)stage) {
+    case 0: Serial.println("STANDBY"); break;
+    case 1: Serial.println("INTRO"); break;
+    case 2: Serial.println("DESARROLLO"); break;
+    case 3: Serial.println("FINAL"); break;
+    default: Serial.println(myData.stage); break;
+  }
+  Serial.print("Current statue enabled: ");
+  switch ((int)statueEnabled) {
+    case 0: Serial.println("HAPPY_ENABLED"); break;
+    case 1: Serial.println("SAD_ENABLED"); break;
+    case 2: Serial.println("BOTH_ENABLED"); break;
+    default: Serial.println(myData.statueEnabled); break;
+  }
+  Serial.print("Is ready to happy ending: ");
+  Serial.println(statueStateMachine->onHappyEnding ? "true" : "false");
+  Serial.println("--------------------------------------------");
+  Serial.println();
 }
 
 

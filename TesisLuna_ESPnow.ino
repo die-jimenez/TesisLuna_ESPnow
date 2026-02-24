@@ -39,7 +39,7 @@
 // MP3 module
 #define RXD2 16  // esp receiver (rx) --> module transciever (tx)
 #define TXD2 17  // D2 = segundo puerto serial, pero es solo nombre
-#define BUSY 5
+#define BUSY 4
 
 //Sensors
 //===================================================
@@ -55,8 +55,7 @@ TouchSensor sensors[9] = {
   TouchSensor(SENSOR_31_PIN, 31),
   TouchSensor(SENSOR_32_PIN, 32)
 };
-const uint8_t SENSORS_COUNT = 1;  //Sensores activos. Evita pinouts de más
-SensorsManager sensorsManager(sensors, SENSORS_COUNT);
+
 
 //Others
 //===================================================
@@ -79,6 +78,9 @@ int contadorMimitos;
 StatueSetting statueSetting(StatueSetting::Name::HAPPY);
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
 const float pettingTriggerTime = 5.0;     //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const uint8_t SENSORS_COUNT = 1;          //Sensores activos. Evita pinouts de más
+
+SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 
 
 
@@ -87,13 +89,12 @@ void setup() {
   Serial.begin(115200);
 
   //Global state machine
-  globalStateMachine.Init(statueSetting.name, &statueStateMachine, &deltaTime);
+  globalStateMachine.Init(&statueSetting, &statueStateMachine, &deltaTime);
 
   //State Machine
   statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);
   statueStateMachine.RegisterOnPettingStarted(OnPettingStarted);
   statueStateMachine.RegisterOnAudioFinished(OnAudioFinished);
-  statueStateMachine.GetAudioBusyPin(BUSY);
 
   //Esp now
   EspNowInit();
@@ -101,9 +102,9 @@ void setup() {
   EspNowRegisterOnReceive(OnReceiveData);
 
   //Audio module
-  Mp3ModuleInit(RXD2, TXD2);
-  delay(1000);
-  //PlaySound(1);
+  Mp3ModuleInit(RXD2, TXD2, BUSY);
+  delay(500);
+  PlaySound(1);
 
   //Sensors init
   sensorsManager.SetShowDebug(false);
@@ -120,8 +121,6 @@ void setup() {
 
 
 void loop() {
-  //EspNowSendExample();
-
   //Sensors update
   sensorsManager.UpdateSensors(deltaTime.Get());
 

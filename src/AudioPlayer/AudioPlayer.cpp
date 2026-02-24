@@ -1,7 +1,9 @@
+#include "esp32-hal-gpio.h"
 #include "AudioPlayer.h"
 
 HardwareSerial dfSD(1);  // Use UART channel 1
 bool playerReady = false;
+int busyPin;
 
 #ifdef AUDIO_MODULE_DFP
 DFRobotDFPlayerMini player;
@@ -11,9 +13,11 @@ DFPlayer player;
 #endif
 
 
-void Mp3ModuleInit(int RX, int TX) {
+void Mp3ModuleInit(int RX, int TX, int BUSY) {
   dfSD.begin(9600, SERIAL_8N1, RX, TX);
   Serial.println("Trying to start comunication with mp3");
+  pinMode(BUSY, INPUT);
+  busyPin = BUSY;
   delay(3000);
 
 #ifdef AUDIO_MODULE_DFP
@@ -35,8 +39,10 @@ void Mp3ModuleInit(int RX, int TX) {
 #endif
 
 #ifdef AUDIO_MODULE_HW247
-  player.begin(dfSD, DFPLAYER_HW_247A);
+  int MP3_SERIAL_TIMEOUT = 400;
+  player.begin(dfSD, MP3_SERIAL_TIMEOUT, DFPLAYER_HW_247A, true); 
   Serial.println("HW247A is connected");
+  player.setSource(2);
   playerReady = true;
   delay(500);
   player.setVolume(20);
@@ -76,6 +82,6 @@ void StopSound() {
   player.stop();
 }
 
-bool IsPlayingAudio(int busyPin) {
-  return digitalRead(busyPin) == LOW;
+bool IsPlayingAudio() {
+  return digitalRead(busyPin);
 }
