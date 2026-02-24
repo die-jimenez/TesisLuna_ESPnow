@@ -25,6 +25,7 @@ void EspNowSetMessage(int name, int stage, int statueEnabled, bool isReadyToHapp
 void EspNowSetAndSendMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding);
 
 void EspNowSendExample();
+void EspNowPrintSendData();
 void EspNowPrintReceiveData();
 
 //Eventos

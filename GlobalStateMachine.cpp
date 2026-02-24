@@ -38,12 +38,54 @@ void GlobalStateMachine::OnSendMessage(const EspNowMessage& myData) {
 
 //Events on StatueStateMachine
 //===================================================
-void GlobalStateMachine::OnEndingTriggered() {
-  EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
-}
 void GlobalStateMachine::OnAudioFinished() {
-  EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+  // El triste avanza el stage, el feliz solo pasa el turno
+  switch (stage) {
+    case (int)Stages::STANDBY:
+      if (statueName == StatueSetting::Name::SAD) {
+        stage = Stages::INTRO;
+        EspNowSetAndSendMessage(statueName, (int)stage, HAPPY_ENABLED, false);
+      } else EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+      break;
+    case (int)Stages::INTRO:
+      if (statueName == StatueSetting::Name::SAD) {
+        stage = Stages::DESARROLLO;
+        EspNowSetAndSendMessage(statueName, (int)stage, HAPPY_ENABLED, false);
+      } else EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+      break;
+    case (int)Stages::DESARROLLO:
+    if (statueName == StatueSetting::Name::SAD) {
+        stage = Stages::FINAL;
+        EspNowSetAndSendMessage(statueName, (int)stage, BOTH_ENABLED, false);
+      } else EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+      break;
+    case (int)Stages::FINAL:
+      break;
+  }
+
+  EspNowPrintSendData();
 }
+void GlobalStateMachine::OnPettingStarted() {
+  switch (stage) {
+    case (int)Stages::STANDBY:
+      PlaySound(StatueSetting::AudiosTrack::TRACK_PURR_COMPLAIN);
+      break;
+    case (int)Stages::INTRO:
+      PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_1);
+      break;
+    case (int)Stages::DESARROLLO:
+      PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_2);
+      break;
+    case (int)Stages::FINAL:
+      break;
+  }
+
+  PlaySound(1);
+  if (stage == Stages::FINAL) {
+    EspNowSetAndSendMessage(statueName, (int)stage, SAD_ENABLED, false);
+  }
+}
+
 
 
 

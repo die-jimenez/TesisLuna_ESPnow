@@ -50,7 +50,7 @@ public:
 
   //Events on StatueStateMachine
   //===================================================
-  void OnEndingTriggered();
+  void OnPettingStarted();
   void OnAudioFinished();
 };
 

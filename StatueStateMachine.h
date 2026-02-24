@@ -33,9 +33,9 @@ private:
 
   //Eventos
   //===================================================
-  typedef void (*OnEndingTriggeredCallback)();
+  typedef void (*OnPettingStartedCallback)();
   typedef void (*OnAudioFinishedCallback)();
-  OnEndingTriggeredCallback onEndingTriggeredCallback = nullptr;
+  OnPettingStartedCallback onPettingStartedCallback = nullptr;
   OnAudioFinishedCallback onAudioFinishedCallback = nullptr;
 
 
@@ -73,7 +73,7 @@ public:
 
   //Events to send message through EspNow
   //===================================================
-  void RegisterOnEndingTriggered(OnEndingTriggeredCallback fn);
+  void RegisterOnPettingStarted(OnPettingStartedCallback fn);
   void RegisterOnAudioFinished(OnAudioFinishedCallback fn);
 };
 

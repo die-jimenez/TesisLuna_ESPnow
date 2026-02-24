@@ -109,14 +109,64 @@ void EspNowSendExample() {
   }
 }
 
-void EspNowPrintReceiveData() {
+void EspNowPrintSendData() {
+  Serial.println();
+  Serial.println("--------------------------------------------");
+
   Serial.print("Name: ");
-  Serial.println(otherData.name);
+  switch (myData.name) {
+    case 0: Serial.println("HAPPY"); break;
+    case 1: Serial.println("SAD"); break;
+    default: Serial.println(myData.name); break;
+  }
   Serial.print("Stage: ");
-  Serial.println(otherData.stage);
+  switch (myData.stage) {
+    case 0: Serial.println("STANDBY"); break;
+    case 1: Serial.println("INTRO"); break;
+    case 2: Serial.println("DESARROLLO"); break;
+    case 3: Serial.println("FINAL"); break;
+    default: Serial.println(myData.stage); break;
+  }
   Serial.print("Current statue enabled: ");
-  Serial.println(otherData.statueEnabled);
+  switch (myData.statueEnabled) {
+    case 0: Serial.println("HAPPY_ENABLED"); break;
+    case 1: Serial.println("SAD_ENABLED"); break;
+    case 2: Serial.println("BOTH_ENABLED"); break;
+    default: Serial.println(myData.statueEnabled); break;
+  }
   Serial.print("Is ready to happy ending: ");
-  Serial.println(otherData.isReadyToHappyEnding);
+  Serial.println(myData.isReadyToHappyEnding ? "true" : "false");
+  Serial.println("--------------------------------------------");
+  Serial.println();
+}
+
+void EspNowPrintReceiveData() {
+  Serial.println();
+  Serial.println("--------------------------------------------");
+
+  Serial.print("Name: ");
+  switch (otherData.name) {
+    case 0: Serial.println("HAPPY"); break;
+    case 1: Serial.println("SAD"); break;
+    default: Serial.println(otherData.name); break;
+  }
+  Serial.print("Stage: ");
+  switch (otherData.stage) {
+    case 0: Serial.println("STANDBY"); break;
+    case 1: Serial.println("INTRO"); break;
+    case 2: Serial.println("DESARROLLO"); break;
+    case 3: Serial.println("FINAL"); break;
+    default: Serial.println(otherData.stage); break;
+  }
+  Serial.print("Current statue enabled: ");
+  switch (otherData.statueEnabled) {
+    case 0: Serial.println("HAPPY_ENABLED"); break;
+    case 1: Serial.println("SAD_ENABLED"); break;
+    case 2: Serial.println("BOTH_ENABLED"); break;
+    default: Serial.println(otherData.statueEnabled); break;
+  }
+  Serial.print("Is ready to happy ending: ");
+  Serial.println(otherData.isReadyToHappyEnding ? "true" : "false");
+  Serial.println("--------------------------------------------");
   Serial.println();
 }

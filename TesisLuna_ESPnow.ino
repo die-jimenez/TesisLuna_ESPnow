@@ -86,16 +86,14 @@ const float pettingTriggerTime = 5.0;     //Tiempo de interaccion para Mimito ||
 void setup() {
   Serial.begin(115200);
 
-  //State Machine
-  statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);
-  statueStateMachine.RegisterOnEndingTriggered(OnEndingTriggered);
-  statueStateMachine.RegisterOnAudioFinished(OnAudioFinished);
-  statueStateMachine.GetAudioBusyPin(BUSY);
-
   //Global state machine
   globalStateMachine.Init(statueSetting.name, &statueStateMachine, &deltaTime);
-  EspNowRegisterOnReceive(OnReceiveData);
-  EspNowRegisterOnSend(OnSendData);
+
+  //State Machine
+  statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);
+  statueStateMachine.RegisterOnPettingStarted(OnPettingStarted);
+  statueStateMachine.RegisterOnAudioFinished(OnAudioFinished);
+  statueStateMachine.GetAudioBusyPin(BUSY);
 
   //Esp now
   EspNowInit();
@@ -105,7 +103,7 @@ void setup() {
   //Audio module
   Mp3ModuleInit(RXD2, TXD2);
   delay(1000);
-  PlaySound(1);
+  //PlaySound(1);
 
   //Sensors init
   sensorsManager.SetShowDebug(false);
@@ -135,12 +133,10 @@ void loop() {
   else if (statueStateMachine.state == StatueStateMachine::INTERACTING) {
     statueStateMachine.UpdateInteraction(pettingTriggerTime, MIN_SENSORS_ACTIVE_TO_PET);
     //PlaySound(statueSetting.TRACK_SONG_1);
-    //delay(5000);//Debug
   }  //
   else if (statueStateMachine.state == StatueStateMachine::PETTING) {
     statueStateMachine.UpdatePetting();
     //PlaySound(statue.TRACK_SONG_2);
-    delay(5000);  //Debug
   }
 
   //Debug
@@ -167,9 +163,9 @@ void OnSendData(const EspNowMessage& data) {
   globalStateMachine.OnSendMessage(data);
 }
 
-void OnEndingTriggered() {
-  globalStateMachine.OnEndingTriggered();
-}
 void OnAudioFinished() {
   globalStateMachine.OnAudioFinished();
+}
+void OnPettingStarted() {
+  globalStateMachine.OnPettingStarted();
 }

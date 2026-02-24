@@ -49,20 +49,16 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
   }
 
   bool canChangeToPetting = timeInteracting > pettingTriggerTime;
+  //To Petting
   if (canChangeToPetting) {
     ChangeState(PETTING);
     sensorsManager->DebugPetting();
-    PlaySound(statueSetting->TRACK_SONG_1);
-
-    //Preparar el final 
-    if (onEndingTriggeredCallback != nullptr) {
-      onEndingTriggeredCallback();
-    }
-    // SendToServerFormated("IniciarMimitos");
+    if (onPettingStartedCallback != nullptr) onPettingStartedCallback();
     return;
   }
 
   bool canChangeToIdle = sensorsManager->areAllSensorsOff();
+  //To idle
   if (canChangeToIdle) {
     ChangeState(IDLE);
     ResetAll();
@@ -104,8 +100,8 @@ void StatueStateMachine::ResetAll() {
 
 
 // ==================== Events to send message through EspNow
-void StatueStateMachine::RegisterOnEndingTriggered(StatueStateMachine::OnEndingTriggeredCallback fn) {
-  onEndingTriggeredCallback = fn;
+void StatueStateMachine::RegisterOnPettingStarted(StatueStateMachine::OnPettingStartedCallback fn) {
+  onPettingStartedCallback = fn;
 }
 void StatueStateMachine::RegisterOnAudioFinished(StatueStateMachine::OnAudioFinishedCallback fn) {
   onAudioFinishedCallback = fn;
