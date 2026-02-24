@@ -88,7 +88,6 @@ void GlobalStateMachine::OnPettingStarted() {
   }
 }
 
-
 void GlobalStateMachine::PrintInfo() {
   Serial.println();
   Serial.println("--------------------------------------------");
@@ -120,7 +119,14 @@ void GlobalStateMachine::PrintInfo() {
   Serial.println();
 }
 
+void GlobalStateMachine::Reset() {
+  stages = Stages::STANDBY;
+  statueEnabled = StatuesEnabled::BOTH_ENABLED;
+}
 
+void GlobalStateMachine::SendMessageToReset() {
+  EspNowSetAndSendMessage(statueSetting->name, Stages::STANDBY, BOTH_ENABLED, false);
+}
 
 
 

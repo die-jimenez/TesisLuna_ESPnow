@@ -5,7 +5,6 @@
 #include "src/StatueSetting/StatueSetting.h"
 #include "src/Lights/Lights.h"
 
-
 #include "StatueStateMachine.h"
 #include "GlobalStateMachine.h"
 
@@ -79,6 +78,7 @@ StatueSetting statueSetting(StatueSetting::Name::HAPPY);
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
 const float pettingTriggerTime = 5.0;     //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 const uint8_t SENSORS_COUNT = 1;          //Sensores activos. Evita pinouts de más
+const uint8_t resetTriggerTime = 6000 ;
 
 SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 
@@ -95,6 +95,7 @@ void setup() {
   statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);
   statueStateMachine.RegisterOnPettingStarted(OnPettingStarted);
   statueStateMachine.RegisterOnAudioFinished(OnAudioFinished);
+  statueStateMachine.SetCanInteract(true);
 
   //Esp now
   EspNowInit();
@@ -126,17 +127,18 @@ void loop() {
 
   //Maquina de estados de la estatua
   //===================================================
-  if (statueStateMachine.state == StatueStateMachine::IDLE) {
-    statueStateMachine.UpdateIdle();
-  }  //
-  else if (statueStateMachine.state == StatueStateMachine::INTERACTING) {
-    statueStateMachine.UpdateInteraction(pettingTriggerTime, MIN_SENSORS_ACTIVE_TO_PET);
-    //PlaySound(statueSetting.TRACK_SONG_1);
-  }  //
-  else if (statueStateMachine.state == StatueStateMachine::PETTING) {
-    statueStateMachine.UpdatePetting();
-    //PlaySound(statue.TRACK_SONG_2);
+  if (statueStateMachine.GetCanInteract()) {
+    if (statueStateMachine.state == StatueStateMachine::IDLE) {
+      statueStateMachine.UpdateIdle();
+    }  //
+    else if (statueStateMachine.state == StatueStateMachine::INTERACTING) {
+      statueStateMachine.UpdateInteraction(pettingTriggerTime, MIN_SENSORS_ACTIVE_TO_PET);
+    }  //
+    else if (statueStateMachine.state == StatueStateMachine::PETTING) {
+      statueStateMachine.UpdatePetting();
+    }
   }
+
 
   //Debug
   //===================================================
@@ -167,4 +169,10 @@ void OnAudioFinished() {
 }
 void OnPettingStarted() {
   globalStateMachine.OnPettingStarted();
+}
+
+void ResetExperience() {
+  statueStateMachine.ResetAll();
+  globalStateMachine.Reset();
+  globalStateMachine.SendMessageToReset();
 }

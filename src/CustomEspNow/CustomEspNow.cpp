@@ -23,8 +23,10 @@ void EspNowRegisterOnSend(OnSendCallback fn) {
 }
 
 void OnDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
+  Serial.println("");
+  Serial.println("--------------------------------------------");
   Serial.print("\r\nLast Packet Send Status:\t");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "MENSAJE ENVIADO" : "FALLO EL ENVIO DE MENSAJE");
 }
 
 void OnDataRecv(const uint8_t* mac, const uint8_t* incomingData, int len) {
@@ -80,7 +82,7 @@ void EspNowSend(const EspNowMessage& data) {
 }
 
 void EspNowSetMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding) {
-  Serial.println("myData to Send updated");
+  Serial.println("");
   myData.name = name;
   myData.stage = stage;
   myData.statueEnabled = statueEnabled;
@@ -141,7 +143,6 @@ void EspNowPrintSendData() {
 }
 
 void EspNowPrintReceiveData() {
-  Serial.println();
   Serial.println("--------------------------------------------");
 
   Serial.print("Name: ");

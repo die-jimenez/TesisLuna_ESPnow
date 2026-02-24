@@ -90,6 +90,9 @@ bool StatueStateMachine::GetCanInteract() {
 void StatueStateMachine::ResetAll() {
   timeInteracting = 0;
   sensorsManager->ResetAllSensors();
+  SetCanInteract(true);
+  ChangeState(State::IDLE);
+  onHappyEnding = false;
 }
 
 

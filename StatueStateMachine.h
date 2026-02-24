@@ -20,8 +20,7 @@ private:
 
   //States
   //===================================================
-  bool isSinging = false;
-  bool canInteract = false;
+  bool canInteract = true;
 
   //Cronometros
   //===================================================

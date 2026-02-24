@@ -55,6 +55,8 @@ public:
   void OnAudioFinished();
 
   void PrintInfo();
+  void Reset();
+  void SendMessageToReset();
 };
 
 #endif
