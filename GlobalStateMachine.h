@@ -9,6 +9,15 @@
 
 class GlobalStateMachine {
 
+public:
+  enum Stages {
+    STANDBY,
+    INTRO,
+    DESARROLLO,
+    FINAL
+  };
+  Stages stage = STANDBY;
+
 private:
   DeltaTime* deltaTime;
   StatueStateMachine* statueStateMachine;
@@ -34,16 +43,12 @@ private:
   void UpdateStatueEnabled(int enabledMode);
   void SyncFinalOnRecieve(const EspNowMessage& otherData);
 
+  void NextStageOrPassTurn(GlobalStateMachine::Stages nextStage);
+  void PrintEndingInfo();
+
+
 
 public:
-  enum Stages {
-    STANDBY,
-    INTRO,
-    DESARROLLO,
-    FINAL
-  };
-  Stages stage = STANDBY;
-
   //Init
   //===================================================
   GlobalStateMachine();

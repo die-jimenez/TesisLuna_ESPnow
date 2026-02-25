@@ -16,11 +16,13 @@ void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine*
 //================================================================================================
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   if (!CheckPublicPassword(otherData.publicPassword)) return;
+
   UpdateStage(otherData.stage);
   UpdateStatueEnabled(otherData.statueEnabled);
-
-  if (stage != Stages::FINAL) {
+  
+  if (stage == Stages::FINAL) {
     SyncFinalOnRecieve(otherData);
+    PrintEndingInfo();
   }
 
   //Evita reinicio por inactividad
@@ -92,27 +94,17 @@ void GlobalStateMachine::OnAudioFinished() {
   // El triste avanza el stage, el feliz solo pasa el turno
   switch (stage) {
     case (int)Stages::STANDBY:
-      if (statueSetting->name == StatueSetting::Name::SAD) {
-        stage = Stages::INTRO;
-        EspNowSetAndSendMessage(statueSetting->name, (int)stage, HAPPY_ENABLED, false);
-      } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
+      NextStageOrPassTurn(Stages::INTRO);
       break;
     case (int)Stages::INTRO:
-      if (statueSetting->name == StatueSetting::Name::SAD) {
-        stage = Stages::DESARROLLO;
-        EspNowSetAndSendMessage(statueSetting->name, (int)stage, HAPPY_ENABLED, false);
-      } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
+      NextStageOrPassTurn(Stages::DESARROLLO);
       break;
     case (int)Stages::DESARROLLO:
-      if (statueSetting->name == StatueSetting::Name::SAD) {
-        stage = Stages::FINAL;
-        EspNowSetAndSendMessage(statueSetting->name, (int)stage, BOTH_ENABLED, false);
-      } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
+      NextStageOrPassTurn(Stages::FINAL);
       break;
     case (int)Stages::FINAL:
       break;
   }
-
   EspNowPrintSendData();
 }
 
@@ -141,6 +133,10 @@ void GlobalStateMachine::OnPettingStarted() {
       }
       // Sincronizamos con la otra para que también ejecute el final
       EspNowSetAndSendMessage(statueSetting->name, (int)stage, BOTH_ENABLED, true);
+      EspNowPrintSendData();
+      PrintEndingInfo();
+      
+
       if (happyOnGoodEnding && sadOnGoodEnding) PlayFinal(true);
       else PlayFinal(false);
       DelayForBusyUpdate();
@@ -158,6 +154,13 @@ void GlobalStateMachine::PlayFinal(bool goodEnding) {
   }
 }
 
+void GlobalStateMachine::NextStageOrPassTurn(GlobalStateMachine::Stages nextStage) {
+  //Cambia de Stage si es "SAD", o solo pasa de turno si es "HAPPY"
+  if (statueSetting->name == StatueSetting::Name::SAD) {
+    stage = nextStage;
+    EspNowSetAndSendMessage(statueSetting->name, (int)stage, HAPPY_ENABLED, false);
+  } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
+}
 
 void GlobalStateMachine::PrintInfo() {
   Serial.println();
@@ -192,8 +195,16 @@ void GlobalStateMachine::PrintInfo() {
   Serial.println();
 }
 
+void GlobalStateMachine::PrintEndingInfo() {
+  Serial.print("Is HAPPY ready to good ending: ");
+  Serial.println(happyOnGoodEnding ? "true" : "false");
+  Serial.print("Is SAD ready to good ending: ");
+  Serial.println(sadOnGoodEnding ? "true" : "false");
+  Serial.println();
+}
 
-//Reset whole experience
+
+#pragma region->Reset whole experience
 //==========================================================
 void GlobalStateMachine::UpdateResetTimer(const float* _INACTIVITY_TIMEOUT) {
   if (stage != (Stages)Stages::STANDBY) {
@@ -219,6 +230,7 @@ void GlobalStateMachine::FullReset() {
 void GlobalStateMachine::SendMessageToReset() {
   EspNowSetAndSendMessage(statueSetting->name, Stages::STANDBY, BOTH_ENABLED, false);
 }
+#pragma endregion
 
 
 

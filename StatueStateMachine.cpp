@@ -66,7 +66,6 @@ void StatueStateMachine::UpdatePetting() {
   //Serial.println("El cambio de estados de Pettign a Idle esta usando un cambio de estado para debug");
 
   bool canChangeToIdle = IsPlayingAudio();
-  //Serial.println(IsPlayingAudio());
   if (canChangeToIdle) {
     //Enviar mensaje a la otra escultura
     if (onAudioFinishedCallback != nullptr) {

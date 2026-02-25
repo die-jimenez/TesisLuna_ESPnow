@@ -74,10 +74,10 @@ int contadorMimitos;
 
 //Parametros Modificables
 //===================================================
-StatueSetting statueSetting(StatueSetting::Name::HAPPY);
-const int MIN_SENSORS_ACTIVE_TO_PET = 1;  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-const float pettingTriggerTime = 5.0;     //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
-const uint8_t SENSORS_COUNT = 1;          //Sensores activos. Evita pinouts de más
+StatueSetting statueSetting(StatueSetting::Name::HAPPY);  //HAPPY || SAD
+const int MIN_SENSORS_ACTIVE_TO_PET = 1;                //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
+const float pettingTriggerTime = 5.0;                   //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const uint8_t SENSORS_COUNT = 1;                        //Sensores activos. Evita pinouts de más
 const float INACTIVITY_TIMEOUT = 60.0;
 
 SensorsManager sensorsManager(sensors, SENSORS_COUNT);
@@ -90,6 +90,8 @@ void setup() {
 
   //Global state machine
   globalStateMachine.Init(&statueSetting, &statueStateMachine, &deltaTime);
+  DebugStage(&globalStateMachine, GlobalStateMachine::Stages::FINAL);
+
 
   //State Machine
   statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);
@@ -122,13 +124,11 @@ void setup() {
 
 
 void loop() {
-  //Serial.println(IsPlayingAudio());
   //Sensors update
   sensorsManager.UpdateSensors(deltaTime.Get());
 
   //Maquina de estados de la estatua
   //===================================================
-  //Serial.println(statueStateMachine.GetCanInteract());
   if (statueStateMachine.GetCanInteract()) {
     if (statueStateMachine.state == StatueStateMachine::IDLE) {
       statueStateMachine.UpdateIdle();
@@ -174,4 +174,7 @@ void OnPettingStarted() {
   globalStateMachine.OnPettingStarted();
 }
 
-
+void DebugStage(GlobalStateMachine* global, GlobalStateMachine::Stages x) {
+  global->stage = x;
+  Serial.println("ESTOY MODIFICANDO EL STAGE EN EL SETUP POR DEBUG ====================================");
+}
