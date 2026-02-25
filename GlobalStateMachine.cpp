@@ -12,27 +12,16 @@ void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine*
   PrintInfo();
 }
 
-//Events on CustomEspNow
-//===================================================
+#pragma region OnRecieve&& OnSend Messages(Events on CustomEspNow)
+//================================================================================================
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
-  if (otherData.publicPassword != PublicPassword) {
-    Serial.println("Llego un mensaje con la contraseña publica incorrecta");
-    return;
-  }
-  //Cambia el Stage
-  if (otherData.stage >= 0 && otherData.stage <= FINAL) {
-    stage = (Stages)otherData.stage;
-  }
-  //Activa o desactiva las esculturas
-  statueEnabled = (StatuesEnabled)otherData.statueEnabled;
-  if (otherData.statueEnabled == BOTH_ENABLED) {
-    statueStateMachine->SetCanInteract(true);
-  } else {
-    statueStateMachine->SetCanInteract(statueSetting->name == otherData.statueEnabled);
-  }
+  if (!CheckPublicPassword(otherData.publicPassword)) return;
+  UpdateStage(otherData.stage);
+  UpdateStatueEnabled(otherData.statueEnabled);
 
-  //Preprara el final feliz o no
-  statueStateMachine->onHappyEnding = otherData.isReadyToHappyEnding;
+  if (stage != Stages::FINAL) {
+    SyncFinalOnRecieve(otherData);
+  }
 
   //Evita reinicio por inactividad
   resetTimer = 0;
@@ -44,6 +33,58 @@ void GlobalStateMachine::OnSendMessage(const EspNowMessage& myData) {
   //Evita reinicio por inactividad
   resetTimer = 0;
 }
+#pragma endregion
+
+
+#pragma region Functions to OnRecieve&& OnSendMessages
+//================================================================================================
+bool GlobalStateMachine::CheckPublicPassword(int receivedPassword) {
+  if (receivedPassword != PublicPassword) {
+    Serial.println("Error: Contraseña pública incorrecta");
+    return false;
+  }
+  return true;
+}
+
+void GlobalStateMachine::UpdateStage(int newStage) {
+  if (newStage >= 0 && newStage <= (int)Stages::FINAL) {
+    stage = (Stages)newStage;
+  }
+}
+
+void GlobalStateMachine::UpdateStatueEnabled(int enabledMode) {
+  statueEnabled = (StatuesEnabled)enabledMode;
+
+  if (statueEnabled == BOTH_ENABLED) {
+    statueStateMachine->SetCanInteract(true);
+  } else {
+    bool isMe = (statueSetting->name == (StatueSetting::Name)statueEnabled);
+    statueStateMachine->SetCanInteract(isMe);
+  }
+}
+
+void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
+
+  if (otherData.name == (int)StatueSetting::Name::HAPPY) {
+    happyOnGoodEnding = otherData.isReadyToHappyEnding;
+  } else if (otherData.name == (int)StatueSetting::Name::SAD) {
+    sadOnGoodEnding = otherData.isReadyToHappyEnding;
+  }
+
+  if (happyOnGoodEnding && sadOnGoodEnding) {
+    Serial.println(">>> Sincronización completa: Iniciando FINAL FELIZ");
+    PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
+
+    // Aquí puedes añadir efectos visuales extra si quieres
+    // statueStateMachine->TriggerHappyEndingLights();
+  }
+}
+#pragma endregion
+
+
+
+
+
 
 //Events on StatueStateMachine
 //===================================================
@@ -81,22 +122,42 @@ void GlobalStateMachine::OnPettingStarted() {
       PlaySound(StatueSetting::AudiosTrack::TRACK_PURR_COMPLAIN);
       DelayForBusyUpdate();
       break;
+
     case (int)Stages::INTRO:
       PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_1);
       DelayForBusyUpdate();
       break;
+
     case (int)Stages::DESARROLLO:
       PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_2);
       DelayForBusyUpdate();
       break;
+
     case (int)Stages::FINAL:
+      if (statueSetting->name == StatueSetting::Name::HAPPY) {
+        happyOnGoodEnding = true;
+      } else if (statueSetting->name == StatueSetting::Name::SAD) {
+        sadOnGoodEnding = true;
+      }
+      // Sincronizamos con la otra para que también ejecute el final
+      EspNowSetAndSendMessage(statueSetting->name, (int)stage, BOTH_ENABLED, true);
+      if (happyOnGoodEnding && sadOnGoodEnding) PlayFinal(true);
+      else PlayFinal(false);
+      DelayForBusyUpdate();
       break;
   }
+}
 
-  if (stage == Stages::FINAL) {
-    EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
+void GlobalStateMachine::PlayFinal(bool goodEnding) {
+
+  if (goodEnding) {
+    PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
+    // Opcional: Podrías llamar a FullReset() después de un delay o cuando termine el audio en OnAudioFinished.
+  } else {
+    PlaySound(StatueSetting::AudiosTrack::TRACK_BAD_ENDING);
   }
 }
+
 
 void GlobalStateMachine::PrintInfo() {
   Serial.println();
@@ -123,8 +184,10 @@ void GlobalStateMachine::PrintInfo() {
     case 2: Serial.println("BOTH_ENABLED"); break;
     default: Serial.println(myData.statueEnabled); break;
   }
-  Serial.print("Is ready to happy ending: ");
-  Serial.println(statueStateMachine->onHappyEnding ? "true" : "false");
+  Serial.print("Is HAPPY ready to good ending: ");
+  Serial.println(happyOnGoodEnding ? "true" : "false");
+  Serial.print("Is SAD ready to good ending: ");
+  Serial.println(sadOnGoodEnding ? "true" : "false");
   Serial.println("--------------------------------------------");
   Serial.println();
 }
@@ -146,6 +209,8 @@ void GlobalStateMachine::FullReset() {
   Serial.println("SE REINCIIA TODO");
 
   stage = Stages::STANDBY;
+  sadOnGoodEnding = false;
+  happyOnGoodEnding = false;
   statueEnabled = StatuesEnabled::BOTH_ENABLED;
   statueStateMachine->ResetStatue();
   SendMessageToReset();

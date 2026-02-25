@@ -16,13 +16,23 @@ private:
   enum StatuesEnabled {
     HAPPY_ENABLED,
     SAD_ENABLED,
-    BOTH_ENABLED
+    BOTH_ENABLED,
+    NONE
   };
   StatuesEnabled statueEnabled = BOTH_ENABLED;
   StatueSetting* statueSetting;
 
   //timer to reset
   float resetTimer = 0;
+
+  //ending
+  bool happyOnGoodEnding = false;
+  bool sadOnGoodEnding = false;
+
+  bool CheckPublicPassword(int receivedPassword);
+  void UpdateStage(int newStage);
+  void UpdateStatueEnabled(int enabledMode);
+  void SyncFinalOnRecieve(const EspNowMessage& otherData);
 
 
 public:
@@ -55,6 +65,7 @@ public:
   void FullReset();
   void SendMessageToReset();
 
+  void PlayFinal(bool goodEnding);
   void PrintInfo();
 };
 

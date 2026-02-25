@@ -80,6 +80,7 @@ void StatueStateMachine::UpdatePetting() {
 void StatueStateMachine::SetCanInteract(bool _canInteract) {
   canInteract = _canInteract;
 }
+
 bool StatueStateMachine::GetCanInteract() {
   return canInteract;
 }
@@ -95,7 +96,6 @@ void StatueStateMachine::ResetStatue() {
   timeInteracting = 0;
   sensorsManager->ResetAllSensors();
   ChangeState(State::IDLE);
-  onHappyEnding = false;
   SetCanInteract(true);
 }
 

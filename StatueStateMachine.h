@@ -43,7 +43,6 @@ public:
     PETTING
   };
   State state = IDLE;
-  bool onHappyEnding = false;
 
   //Init
   //===================================================
