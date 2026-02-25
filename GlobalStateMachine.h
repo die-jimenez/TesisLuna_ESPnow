@@ -33,6 +33,8 @@ private:
 
   //timer to reset
   float resetTimer = 0;
+  float finalEndingTimer = 0;
+  bool badEndingTimerActive = false;
 
   //ending
   bool happyOnGoodEnding = false;
@@ -66,7 +68,7 @@ public:
 
   //Reset event
   //===================================================
-  void UpdateResetTimer(const float* _INACTIVITY_TIMEOUT);
+  void UpdateResetTimer(const float* _INACTIVITY_TIMEOUT, const float* _BAD_ENDING_RESET_TIMEOUT);
   void FullReset();
   void SendMessageToReset();
 

@@ -12,14 +12,16 @@ void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine*
   PrintInfo();
 }
 
-#pragma region OnRecieve&& OnSend Messages(Events on CustomEspNow)
+
+
+#pragma region->Send or recieve messages(CustomEspNow)
 //================================================================================================
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   if (!CheckPublicPassword(otherData.publicPassword)) return;
 
   UpdateStage(otherData.stage);
   UpdateStatueEnabled(otherData.statueEnabled);
-  
+
   if (stage == Stages::FINAL) {
     SyncFinalOnRecieve(otherData);
     PrintEndingInfo();
@@ -38,7 +40,7 @@ void GlobalStateMachine::OnSendMessage(const EspNowMessage& myData) {
 #pragma endregion
 
 
-#pragma region Functions to OnRecieve&& OnSendMessages
+#pragma region->Functions to send or recieve messages
 //================================================================================================
 bool GlobalStateMachine::CheckPublicPassword(int receivedPassword) {
   if (receivedPassword != PublicPassword) {
@@ -87,25 +89,23 @@ void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
 
 
 
-
-//Events on StatueStateMachine
-//===================================================
+#pragma region->PettingStarted and AudioFinished(StatueStateMachine)
+//=======================================================================================
 void GlobalStateMachine::OnAudioFinished() {
-  // El triste avanza el stage, el feliz solo pasa el turno
-  switch (stage) {
-    case (int)Stages::STANDBY:
-      NextStageOrPassTurn(Stages::INTRO);
-      break;
-    case (int)Stages::INTRO:
-      NextStageOrPassTurn(Stages::DESARROLLO);
-      break;
-    case (int)Stages::DESARROLLO:
-      NextStageOrPassTurn(Stages::FINAL);
-      break;
-    case (int)Stages::FINAL:
-      break;
+  if (stage != Stages::FINAL) {
+    NextStageOrPassTurn(Stages::FINAL);
+    EspNowPrintSendData();
+    return;
   }
-  EspNowPrintSendData();
+
+  bool goodEndingPlayed = happyOnGoodEnding && sadOnGoodEnding;
+  if (goodEndingPlayed) {
+    delay(2000);
+    FullReset();
+  } else {
+    badEndingTimerActive = true;
+    finalEndingTimer = 0;
+  }
 }
 
 void GlobalStateMachine::OnPettingStarted() {
@@ -135,7 +135,7 @@ void GlobalStateMachine::OnPettingStarted() {
       EspNowSetAndSendMessage(statueSetting->name, (int)stage, BOTH_ENABLED, true);
       EspNowPrintSendData();
       PrintEndingInfo();
-      
+
 
       if (happyOnGoodEnding && sadOnGoodEnding) PlayFinal(true);
       else PlayFinal(false);
@@ -143,6 +143,9 @@ void GlobalStateMachine::OnPettingStarted() {
       break;
   }
 }
+
+#pragma endregion
+
 
 void GlobalStateMachine::PlayFinal(bool goodEnding) {
 
@@ -161,6 +164,8 @@ void GlobalStateMachine::NextStageOrPassTurn(GlobalStateMachine::Stages nextStag
     EspNowSetAndSendMessage(statueSetting->name, (int)stage, HAPPY_ENABLED, false);
   } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
 }
+
+
 
 void GlobalStateMachine::PrintInfo() {
   Serial.println();
@@ -200,16 +205,23 @@ void GlobalStateMachine::PrintEndingInfo() {
   Serial.println(happyOnGoodEnding ? "true" : "false");
   Serial.print("Is SAD ready to good ending: ");
   Serial.println(sadOnGoodEnding ? "true" : "false");
-  Serial.println();
 }
 
 
 #pragma region->Reset whole experience
 //==========================================================
-void GlobalStateMachine::UpdateResetTimer(const float* _INACTIVITY_TIMEOUT) {
+void GlobalStateMachine::UpdateResetTimer(const float* _INACTIVITY_TIMEOUT, const float* _BAD_ENDING_RESET_TIMEOUT) {
   if (stage != (Stages)Stages::STANDBY) {
     resetTimer += deltaTime->Get();
     if (resetTimer >= *_INACTIVITY_TIMEOUT) {
+      FullReset();
+    }
+  }
+
+  if (badEndingTimerActive) {
+    finalEndingTimer += deltaTime->Get();
+    if (finalEndingTimer >= *_BAD_ENDING_RESET_TIMEOUT) {
+      badEndingTimerActive = false;
       FullReset();
     }
   }
@@ -222,6 +234,9 @@ void GlobalStateMachine::FullReset() {
   stage = Stages::STANDBY;
   sadOnGoodEnding = false;
   happyOnGoodEnding = false;
+  badEndingTimerActive = false;
+  finalEndingTimer = 0;
+
   statueEnabled = StatuesEnabled::BOTH_ENABLED;
   statueStateMachine->ResetStatue();
   SendMessageToReset();
