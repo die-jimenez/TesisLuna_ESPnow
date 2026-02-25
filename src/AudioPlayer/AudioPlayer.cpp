@@ -108,3 +108,7 @@ void StopSound() {
 bool IsPlayingAudio() {
   return digitalRead(busyPin);
 }
+
+void DelayForBusyUpdate() {
+  delay(350);
+}

@@ -31,5 +31,6 @@ void PlaySound(int audioIndex);
 void PlaySound(int audioIndex, float volume);
 void StopSound();
 bool IsPlayingAudio();
+void DelayForBusyUpdate();
 
 #endif

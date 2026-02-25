@@ -13,14 +13,6 @@ private:
   DeltaTime* deltaTime;
   StatueStateMachine* statueStateMachine;
 
-  //Phases
-  //===================================================
-  void PrimerosMimitos();
-  void MimitosDesarrollo();
-  void MimitosFinal();
-  void PrepararFinal();
-  void EjecutarFinal();
-
   enum StatuesEnabled {
     HAPPY_ENABLED,
     SAD_ENABLED,
@@ -28,6 +20,9 @@ private:
   };
   StatuesEnabled statueEnabled = BOTH_ENABLED;
   StatueSetting* statueSetting;
+
+  //timer to reset
+  float resetTimer = 0;
 
 
 public:
@@ -54,9 +49,13 @@ public:
   void OnPettingStarted();
   void OnAudioFinished();
 
-  void PrintInfo();
-  void Reset();
+  //Reset event
+  //===================================================
+  void UpdateResetTimer(const float* _INACTIVITY_TIMEOUT);
+  void FullReset();
   void SendMessageToReset();
+
+  void PrintInfo();
 };
 
 #endif

@@ -78,7 +78,7 @@ StatueSetting statueSetting(StatueSetting::Name::HAPPY);
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
 const float pettingTriggerTime = 5.0;     //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 const uint8_t SENSORS_COUNT = 1;          //Sensores activos. Evita pinouts de más
-const uint8_t resetTriggerTime = 6000 ;
+const float INACTIVITY_TIMEOUT = 60.0;
 
 SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 
@@ -122,6 +122,7 @@ void setup() {
 
 
 void loop() {
+  //Serial.println(IsPlayingAudio());
   //Sensors update
   sensorsManager.UpdateSensors(deltaTime.Get());
 
@@ -139,6 +140,7 @@ void loop() {
     }
   }
 
+  globalStateMachine.UpdateResetTimer(&INACTIVITY_TIMEOUT);
 
   //Debug
   //===================================================
@@ -171,8 +173,4 @@ void OnPettingStarted() {
   globalStateMachine.OnPettingStarted();
 }
 
-void ResetExperience() {
-  statueStateMachine.ResetAll();
-  globalStateMachine.Reset();
-  globalStateMachine.SendMessageToReset();
-}
+

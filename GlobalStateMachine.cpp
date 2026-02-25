@@ -33,10 +33,17 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
 
   //Preprara el final feliz o no
   statueStateMachine->onHappyEnding = otherData.isReadyToHappyEnding;
+
+  //Evita reinicio por inactividad
+  resetTimer = 0;
 }
+
 void GlobalStateMachine::OnSendMessage(const EspNowMessage& myData) {
   bool shouldSenderKeepEnabled = myData.statueEnabled == BOTH_ENABLED;
   statueStateMachine->SetCanInteract(myData.statueEnabled == shouldSenderKeepEnabled);
+
+  //Evita reinicio por inactividad
+  resetTimer = 0;
 }
 
 //Events on StatueStateMachine
@@ -68,16 +75,20 @@ void GlobalStateMachine::OnAudioFinished() {
 
   EspNowPrintSendData();
 }
+
 void GlobalStateMachine::OnPettingStarted() {
   switch (stage) {
     case (int)Stages::STANDBY:
       PlaySound(StatueSetting::AudiosTrack::TRACK_PURR_COMPLAIN);
+      DelayForBusyUpdate();
       break;
     case (int)Stages::INTRO:
       PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_1);
+      DelayForBusyUpdate();
       break;
     case (int)Stages::DESARROLLO:
       PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_2);
+      DelayForBusyUpdate();
       break;
     case (int)Stages::FINAL:
       break;
@@ -119,14 +130,29 @@ void GlobalStateMachine::PrintInfo() {
   Serial.println();
 }
 
-void GlobalStateMachine::Reset() {
+
+//Reset whole experience
+//==========================================================
+void GlobalStateMachine::UpdateResetTimer(const float* _INACTIVITY_TIMEOUT) {
+  resetTimer += deltaTime->Get();
+  if (resetTimer >= *_INACTIVITY_TIMEOUT) {
+    FullReset();
+  }
+}
+
+void GlobalStateMachine::FullReset() {
+  Serial.println("");
+  Serial.println("SE REINCIIA TODO");
   stage = Stages::STANDBY;
   statueEnabled = StatuesEnabled::BOTH_ENABLED;
+  statueStateMachine->ResetStatue();
+  SendMessageToReset();
 }
 
 void GlobalStateMachine::SendMessageToReset() {
   EspNowSetAndSendMessage(statueSetting->name, Stages::STANDBY, BOTH_ENABLED, false);
 }
+
 
 
 
