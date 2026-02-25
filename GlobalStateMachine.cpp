@@ -120,7 +120,7 @@ void GlobalStateMachine::PrintInfo() {
 }
 
 void GlobalStateMachine::Reset() {
-  stages = Stages::STANDBY;
+  stage = Stages::STANDBY;
   statueEnabled = StatuesEnabled::BOTH_ENABLED;
 }
 

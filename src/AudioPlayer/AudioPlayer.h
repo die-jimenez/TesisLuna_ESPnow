@@ -6,11 +6,14 @@
 #include "HardwareSerial.h"
 
 // ====== ELEGIR UN SOLO MODULO ======
-// DFRobot original / MP3-TP-16P
-// #define AUDIO_MODULE_DFP
+// DFRobot original 
+//#define AUDIO_MODULE_DFP
 
 // HW-247A clon
-#define AUDIO_MODULE_HW247
+//#define AUDIO_MODULE_HW247
+
+// MP3-TF-16P clon
+#define AUDIO_MODULE_TF
 // ===================================
 
 #ifdef AUDIO_MODULE_DFP
@@ -18,6 +21,9 @@
 #endif
 #ifdef AUDIO_MODULE_HW247
 #include "DFPlayer.h"
+#endif
+#ifdef AUDIO_MODULE_TF
+#include "DFRobotDFPlayerMini.h"
 #endif
 
 void Mp3ModuleInit(int RX, int TX, int BUSY);
