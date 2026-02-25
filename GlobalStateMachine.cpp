@@ -40,8 +40,7 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
 
 void GlobalStateMachine::OnSendMessage(const EspNowMessage& myData) {
   bool shouldSenderKeepEnabled = myData.statueEnabled == BOTH_ENABLED;
-  statueStateMachine->SetCanInteract(myData.statueEnabled == shouldSenderKeepEnabled);
-
+  statueStateMachine->SetCanInteract(shouldSenderKeepEnabled);
   //Evita reinicio por inactividad
   resetTimer = 0;
 }
@@ -134,15 +133,18 @@ void GlobalStateMachine::PrintInfo() {
 //Reset whole experience
 //==========================================================
 void GlobalStateMachine::UpdateResetTimer(const float* _INACTIVITY_TIMEOUT) {
-  resetTimer += deltaTime->Get();
-  if (resetTimer >= *_INACTIVITY_TIMEOUT) {
-    FullReset();
+  if (stage != (Stages)Stages::STANDBY) {
+    resetTimer += deltaTime->Get();
+    if (resetTimer >= *_INACTIVITY_TIMEOUT) {
+      FullReset();
+    }
   }
 }
 
 void GlobalStateMachine::FullReset() {
   Serial.println("");
   Serial.println("SE REINCIIA TODO");
+
   stage = Stages::STANDBY;
   statueEnabled = StatuesEnabled::BOTH_ENABLED;
   statueStateMachine->ResetStatue();

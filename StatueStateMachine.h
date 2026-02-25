@@ -62,6 +62,8 @@ public:
   void SetCanInteract(bool _canInteract);
   bool GetCanInteract();
   void ResetStatue();
+  void ResetInteractionState();
+
 
 
   //Events to send message through EspNow

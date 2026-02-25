@@ -56,8 +56,7 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
   bool canChangeToIdle = sensorsManager->areAllSensorsOff();
   //To idle
   if (canChangeToIdle) {
-    ChangeState(IDLE);
-    ResetStatue();
+    ResetInteractionState();
   }
 }
 
@@ -73,8 +72,7 @@ void StatueStateMachine::UpdatePetting() {
     if (onAudioFinishedCallback != nullptr) {
       onAudioFinishedCallback();
     }
-    ChangeState(IDLE);
-    ResetStatue();
+    ResetInteractionState();
   }
 }
 
@@ -86,13 +84,19 @@ bool StatueStateMachine::GetCanInteract() {
   return canInteract;
 }
 
+void StatueStateMachine::ResetInteractionState() {
+  timeInteracting = 0;
+  sensorsManager->ResetAllSensors();
+  ChangeState(State::IDLE);
+}
+
 
 void StatueStateMachine::ResetStatue() {
   timeInteracting = 0;
   sensorsManager->ResetAllSensors();
-  SetCanInteract(true);
   ChangeState(State::IDLE);
   onHappyEnding = false;
+  SetCanInteract(true);
 }
 
 

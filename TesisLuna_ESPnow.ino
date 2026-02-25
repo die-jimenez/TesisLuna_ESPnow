@@ -128,6 +128,7 @@ void loop() {
 
   //Maquina de estados de la estatua
   //===================================================
+  //Serial.println(statueStateMachine.GetCanInteract());
   if (statueStateMachine.GetCanInteract()) {
     if (statueStateMachine.state == StatueStateMachine::IDLE) {
       statueStateMachine.UpdateIdle();
