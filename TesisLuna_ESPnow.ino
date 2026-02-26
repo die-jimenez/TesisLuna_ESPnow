@@ -15,17 +15,17 @@
 
 //Pines usados
 //===================================================
-#define SENSOR_10_PIN 27  //Verificar estos pines <----------------
-#define SENSOR_11_PIN 26
-#define SENSOR_12_PIN 25
+#define SENSOR_10_PIN 14  //Verificar estos pines <----------------
+#define SENSOR_11_PIN 27
+#define SENSOR_12_PIN 26
 
-#define SENSOR_20_PIN 36  //pin SVP (Solo input)
-#define SENSOR_21_PIN 39  //pin SVN (Solo input)
-#define SENSOR_22_PIN 34
+#define SENSOR_20_PIN 18  //pin SVP (Solo input)
+#define SENSOR_21_PIN 19  //pin SVN (Solo input)
+#define SENSOR_22_PIN 21
 
-#define SENSOR_30_PIN 22
-#define SENSOR_31_PIN 35
-#define SENSOR_32_PIN 21
+#define SENSOR_30_PIN 34
+#define SENSOR_31_PIN 39
+#define SENSOR_32_PIN 36
 
 #define SENSOR_40_PIN 25
 #define SENSOR_41_PIN 33
@@ -75,11 +75,11 @@ int contadorMimitos;
 //Parametros Modificables
 //===================================================
 StatueSetting statueSetting(StatueSetting::Name::HAPPY);  //HAPPY || SAD
-const int MIN_SENSORS_ACTIVE_TO_PET = 1;                  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-const float pettingTriggerTime = 5.0;                     //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
-const uint8_t SENSORS_COUNT = 1;                          //Sensores activos. Evita pinouts de más
-const float INACTIVITY_TIMEOUT = 60.0;
-const float BAD_ENDING_RESET_TIMEOUT = 10.0;
+const uint8_t SENSORS_COUNT = 8;                          //Sensores activos. Evita pinouts de más
+const int MIN_SENSORS_ACTIVE_TO_PET = 3;                  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
+const float pettingTriggerTime = 2.0;                     //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const float INACTIVITY_TIMEOUT = 90.0;
+const float BAD_ENDING_RESET_TIMEOUT = 30.0;
 
 
 SensorsManager sensorsManager(sensors, SENSORS_COUNT);
@@ -94,8 +94,7 @@ void setup() {
 
   //Global state machine
   globalStateMachine.Init(&statueSetting, &statueStateMachine, &deltaTime);
-  DebugStage(&globalStateMachine, GlobalStateMachine::Stages::FINAL);
-
+  //DebugStage(&globalStateMachine, GlobalStateMachine::Stages::FINAL);
 
   //State Machine
   statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);
@@ -151,16 +150,6 @@ void loop() {
   }
 
   globalStateMachine.UpdateResetTimer(&INACTIVITY_TIMEOUT, &BAD_ENDING_RESET_TIMEOUT);
-
-  //Debug
-  //===================================================
-  // for (int i = 0; i < SENSORS_COUNT; i++) {
-  //   if (sensors[i].isTouchStable()) {
-  //     EspNowSendExample();
-  //     PlaySound(statue.TRACK_SONG_1);
-  //     delay(1000);
-  //   }
-  // }
 
   deltaTime.Run();
   delay(5);
