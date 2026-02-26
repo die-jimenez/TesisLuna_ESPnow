@@ -1,19 +1,25 @@
 #ifndef __LIGHTS_H__
 #define __LIGHTS_H__
 #include <Arduino.h>
+#include "../DeltaTime/DeltaTime.h"
 
 class Lights {
 
 private:
-  int mouthLightPin;
-  int enviromentLightPin;
-  float timeLightFlickering;
+  int mouthPin;
+  int enviromentPin;
+  float flickerTimer = 0;
 
 public:
-  Lights(int _mouthLightPin, int _enviromentLightPin);
+  enum LightState {
+    ON,
+    OFF,
+    FLASHING
+  };
 
+  Lights(int _mouthPin, int _enviromentPin);
   void Init();
-  void TurnOn(bool val);
+  void Update(LightState state, DeltaTime* deltaTime);
 };
 
 #endif

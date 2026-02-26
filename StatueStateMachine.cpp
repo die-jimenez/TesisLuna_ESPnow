@@ -27,7 +27,7 @@ void StatueStateMachine::ChangeState(State newState) {
 }
 
 void StatueStateMachine::UpdateIdle() {
-  lights->TurnOn(LOW);  //PARPADEARRRRRRRR!!!!!!!!!!!!!!!!!!
+  lights->Update(Lights::LightState::FLASHING, deltaTime);
   //Check if at any sensor has a stable touch
   if (!sensorsManager->areAllSensorsOff()) {
     ChangeState(INTERACTING);
@@ -37,7 +37,7 @@ void StatueStateMachine::UpdateIdle() {
 }
 
 void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSensorsToPet) {
-  lights->TurnOn(HIGH);
+  lights->Update(Lights::LightState::FLASHING, deltaTime);
 
   bool canStartRunningTime = sensorsManager->areMultipleSensorsOn(minSensorsToPet);
   if (canStartRunningTime) {
@@ -61,7 +61,7 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
 }
 
 void StatueStateMachine::UpdatePetting() {
-  lights->TurnOn(HIGH);
+  lights->Update(Lights::LightState::ON, deltaTime);
   //bool canChangeToIdle = sensorsManager->areAllSensorsOff();  //-----> DEBUG
   //Serial.println("El cambio de estados de Pettign a Idle esta usando un cambio de estado para debug");
 

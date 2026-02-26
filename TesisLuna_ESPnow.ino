@@ -89,6 +89,8 @@ SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("Iniciando");
+  delay(5000);
 
   //Global state machine
   globalStateMachine.Init(&statueSetting, &statueStateMachine, &deltaTime);
@@ -117,7 +119,7 @@ void setup() {
 
   //Leds
   lights.Init();
-  lights.TurnOn(true);
+  lights.Update(Lights::LightState::ON, &deltaTime);
 
   delay(1000);
   Serial.println("setup is complete");
@@ -128,6 +130,7 @@ void setup() {
 void loop() {
   //Sensors update
   sensorsManager.UpdateSensors(deltaTime.Get());
+
 
   //Maquina de estados de la estatua
   //===================================================
@@ -141,6 +144,10 @@ void loop() {
     else if (statueStateMachine.state == StatueStateMachine::PETTING) {
       statueStateMachine.UpdatePetting();
     }
+  }
+
+  if (!statueStateMachine.GetCanInteract()) {
+    lights.Update(Lights::LightState::OFF, &deltaTime); 
   }
 
   globalStateMachine.UpdateResetTimer(&INACTIVITY_TIMEOUT, &BAD_ENDING_RESET_TIMEOUT);
