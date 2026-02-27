@@ -93,7 +93,8 @@ void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
 //=======================================================================================
 void GlobalStateMachine::OnAudioFinished() {
   if (stage != Stages::FINAL) {
-    NextStageOrPassTurn(Stages::FINAL);
+     Stages nextStage = (Stages)((int)stage + 1);
+    NextStageOrPassTurn(nextStage);
     EspNowPrintSendData();
     return;
   }
