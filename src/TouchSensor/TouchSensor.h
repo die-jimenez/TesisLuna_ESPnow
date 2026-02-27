@@ -14,7 +14,7 @@ private:
 
   //Reconocer interaccion
   float activeTime;
-  const float minTouchDuration = 1.5;
+  const float minTouchDuration = 1.25;
 
   //Debug
   bool debugEventExecuted;

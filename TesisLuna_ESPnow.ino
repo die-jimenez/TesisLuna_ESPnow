@@ -19,21 +19,18 @@
 #define SENSOR_11_PIN 27
 #define SENSOR_12_PIN 26
 
-#define SENSOR_20_PIN 18  //pin SVP (Solo input)
-#define SENSOR_21_PIN 19  //pin SVN (Solo input)
+#define SENSOR_20_PIN 18
+#define SENSOR_21_PIN 19
 #define SENSOR_22_PIN 21
 
-#define SENSOR_30_PIN 34
-#define SENSOR_31_PIN 39
+#define SENSOR_30_PIN 34  //pin SVP (Solo input)
+#define SENSOR_31_PIN 39  //pin SVN (Solo input)
 #define SENSOR_32_PIN 36
 
-#define SENSOR_40_PIN 25
-#define SENSOR_41_PIN 33
-#define SENSOR_42_PIN 32
 
 // Luces
-#define LEDS_BOCA 13     //Se podrian unificar
-#define LEDS_ENTORNO 12  //PIN PROBLEMATICO
+#define LEDS_BOCA 33
+#define LEDS_ENTORNO 32
 
 // MP3 module
 #define RXD2 16  // esp receiver (rx) --> module transciever (tx)
@@ -78,17 +75,17 @@ int contadorMimitos;
 
 #ifdef STATUE_HAPPY
 StatueSetting statueSetting(StatueSetting::Name::HAPPY);  //HAPPY || SAD
-const uint8_t SENSORS_COUNT = 8;                          //Sensores activos. Evita pinouts de más
-const int MIN_SENSORS_ACTIVE_TO_PET = 3;                  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-#endif
-
-#ifdef STATUE_SAD
-StatueSetting statueSetting(StatueSetting::Name::HAPPY);  //HAPPY || SAD
 const uint8_t SENSORS_COUNT = 5;                          //Sensores activos. Evita pinouts de más
 const int MIN_SENSORS_ACTIVE_TO_PET = 2;                  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
 #endif
 
-const float pettingTriggerTime = 2.0;  //Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+#ifdef STATUE_SAD
+StatueSetting statueSetting(StatueSetting::Name::SAD);  //HAPPY || SAD
+const uint8_t SENSORS_COUNT = 7;                        //Sensores activos. Evita pinouts de más
+const int MIN_SENSORS_ACTIVE_TO_PET = 2;                //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
+#endif
+
+const float pettingTriggerTime = 1.25;  // Minimmo: 1.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 const float INACTIVITY_TIMEOUT = 90.0;
 const float BAD_ENDING_RESET_TIMEOUT = 30.0;
 SensorsManager sensorsManager(sensors, SENSORS_COUNT);
@@ -121,7 +118,7 @@ void setup() {
   PlaySound(1);
 
   //Sensors init
-  sensorsManager.SetShowDebug(false);
+  sensorsManager.SetShowDebug(true);
   sensorsManager.InitSensors();
 
   //Leds
