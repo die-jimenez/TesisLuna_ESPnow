@@ -71,7 +71,7 @@ int contadorMimitos;
 
 //Parametros Modificables
 //===================================================
-#define STATUE_SAD  //--------------------------------> CAMBIAR ESTA VARIABLE PARA CAMBIAR LAS ESTATUAS =>
+#define STATUE_HAPPY //--------------------------------> CAMBIAR ESTA VARIABLE PARA CAMBIAR LAS ESTATUAS =>
 
 #ifdef STATUE_HAPPY
 StatueSetting statueSetting(StatueSetting::Name::HAPPY);  //HAPPY || SAD
@@ -83,7 +83,7 @@ const float pettingTriggerTime = 2.5;                     // Minimmo: 1.5 -> Tie
 #ifdef STATUE_SAD
 StatueSetting statueSetting(StatueSetting::Name::SAD);  //HAPPY || SAD
 const uint8_t SENSORS_COUNT = 7;                        //Sensores activos. Evita pinouts de más
-const int MIN_SENSORS_ACTIVE_TO_PET = 3;                //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
+const int MIN_SENSORS_ACTIVE_TO_PET = 2;                //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
 const float pettingTriggerTime = 2.5;                   // Minimmo: 1.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
 
