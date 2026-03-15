@@ -15,17 +15,21 @@
 
 //Pines usados
 //===================================================
-#define SENSOR_10_PIN 14  //Verificar estos pines <----------------
+#define SENSOR_10_PIN 14  
 #define SENSOR_11_PIN 27
 #define SENSOR_12_PIN 26
 
 #define SENSOR_20_PIN 18
-#define SENSOR_21_PIN 19
+#define SENSOR_21_PIN 19 //39 //pin SVN (Solo input)
 #define SENSOR_22_PIN 21
 
-#define SENSOR_30_PIN 34  //pin SVP (Solo input)
-#define SENSOR_31_PIN 39  //pin SVN (Solo input)
-#define SENSOR_32_PIN 36
+#define SENSOR_30_PIN 34  
+#define SENSOR_31_PIN 36  //pin SVP (Solo input)
+#define SENSOR_32_PIN 25 
+
+// #define SENSOR_40_PIN 25
+// #define SENSOR_41_PIN 33
+// #define SENSOR_42_PIN 32
 
 
 // Luces
@@ -71,11 +75,11 @@ int contadorMimitos;
 
 //Parametros Modificables
 //===================================================
-#define STATUE_HAPPY //--------------------------------> CAMBIAR ESTA VARIABLE PARA CAMBIAR LAS ESTATUAS =>
+#define STATUE_SAD //--------------------------------> CAMBIAR ESTA VARIABLE PARA CAMBIAR LAS ESTATUAS =>
 
 #ifdef STATUE_HAPPY
 StatueSetting statueSetting(StatueSetting::Name::HAPPY);  //HAPPY || SAD
-const uint8_t SENSORS_COUNT = 5;                          //Sensores activos. Evita pinouts de más
+const uint8_t SENSORS_COUNT = 4;                          //Sensores activos. Evita pinouts de más
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;                  //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
 const float pettingTriggerTime = 2.5;                     // Minimmo: 1.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
@@ -96,7 +100,7 @@ SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 void setup() {
   Serial.begin(115200);
   Serial.println("Iniciando");
-  delay(5000);
+  delay(15000);
 
   //Global state machine
   globalStateMachine.Init(&statueSetting, &statueStateMachine, &deltaTime);
@@ -118,7 +122,7 @@ void setup() {
   delay(500);
   PlaySound(1);
 
-  //Sensors init
+  // //Sensors init
   sensorsManager.SetShowDebug(true);
   sensorsManager.InitSensors();
 
