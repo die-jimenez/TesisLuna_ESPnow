@@ -19,6 +19,14 @@ void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine*
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   if (!CheckPublicPassword(otherData.publicPassword)) return;
 
+  bool isAudioMessage =
+    otherData.name == (int)StatueSetting::Name::AUDIO_HAPPY || otherData.name == (int)StatueSetting::Name::AUDIO_SAD;
+
+  if (isAudioMessage) {
+    //HandleAudioMessage(otherData);
+    return;
+  }
+
   UpdateStage(otherData.stage);
   UpdateStatueEnabled(otherData.statueEnabled);
 
@@ -69,15 +77,16 @@ void GlobalStateMachine::UpdateStatueEnabled(int enabledMode) {
 
 void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
 
-  if (otherData.name == (int)StatueSetting::Name::HAPPY) {
+  if (otherData.name == (int)StatueSetting::Name::SENSORS_HAPPY) {
     happyOnGoodEnding = otherData.isReadyToHappyEnding;
-  } else if (otherData.name == (int)StatueSetting::Name::SAD) {
+  } else if (otherData.name == (int)StatueSetting::Name::SENSORS_SAD) {
     sadOnGoodEnding = otherData.isReadyToHappyEnding;
   }
 
   if (happyOnGoodEnding && sadOnGoodEnding) {
     Serial.println(">>> Sincronización completa: Iniciando FINAL FELIZ");
-    PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
+    EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
+    //PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
 
     // Aquí puedes añadir efectos visuales extra si quieres
     // statueStateMachine->TriggerHappyEndingLights();
@@ -86,14 +95,11 @@ void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
 #pragma endregion
 
 
-
-
-
 #pragma region->PettingStarted and AudioFinished(StatueStateMachine)
 //=======================================================================================
 void GlobalStateMachine::OnAudioFinished() {
   if (stage != Stages::FINAL) {
-     Stages nextStage = (Stages)((int)stage + 1);
+    Stages nextStage = (Stages)((int)stage + 1);
     NextStageOrPassTurn(nextStage);
     EspNowPrintSendData();
     return;
@@ -112,24 +118,27 @@ void GlobalStateMachine::OnAudioFinished() {
 void GlobalStateMachine::OnPettingStarted() {
   switch (stage) {
     case (int)Stages::STANDBY:
-      PlaySound(StatueSetting::AudiosTrack::TRACK_PURR_COMPLAIN);
+      EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, false, statueSetting->ToAudio);
+      //PlaySound(StatueSetting::AudiosTrack::TRACK_PURR_COMPLAIN);
       DelayForBusyUpdate();
       break;
 
     case (int)Stages::INTRO:
-      PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_1);
+      EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, false, statueSetting->ToAudio);
+      //PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_1);
       DelayForBusyUpdate();
       break;
 
     case (int)Stages::DESARROLLO:
-      PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_2);
+      EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, false, statueSetting->ToAudio);
+      //PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_2);
       DelayForBusyUpdate();
       break;
 
     case (int)Stages::FINAL:
-      if (statueSetting->name == StatueSetting::Name::HAPPY) {
+      if (statueSetting->name == StatueSetting::Name::SENSORS_HAPPY) {
         happyOnGoodEnding = true;
-      } else if (statueSetting->name == StatueSetting::Name::SAD) {
+      } else if (statueSetting->name == StatueSetting::Name::SENSORS_SAD) {
         sadOnGoodEnding = true;
       }
       // Sincronizamos con la otra para que también ejecute el final
@@ -151,16 +160,17 @@ void GlobalStateMachine::OnPettingStarted() {
 void GlobalStateMachine::PlayFinal(bool goodEnding) {
 
   if (goodEnding) {
-    PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
+    //PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
+    EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
     // Opcional: Podrías llamar a FullReset() después de un delay o cuando termine el audio en OnAudioFinished.
   } else {
-    PlaySound(StatueSetting::AudiosTrack::TRACK_BAD_ENDING);
+    EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
   }
 }
 
 void GlobalStateMachine::NextStageOrPassTurn(GlobalStateMachine::Stages nextStage) {
   //Cambia de Stage si es "SAD", o solo pasa de turno si es "HAPPY"
-  if (statueSetting->name == StatueSetting::Name::SAD) {
+  if (statueSetting->name == StatueSetting::Name::SENSORS_SAD) {
     stage = nextStage;
     EspNowSetAndSendMessage(statueSetting->name, (int)stage, HAPPY_ENABLED, false);
   } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
@@ -174,8 +184,8 @@ void GlobalStateMachine::PrintInfo() {
 
   Serial.print("Name: ");
   switch ((int)statueSetting->name) {
-    case 0: Serial.println("HAPPY"); break;
-    case 1: Serial.println("SAD"); break;
+    case 0: Serial.println("SENSORS_HAPPY"); break;
+    case 1: Serial.println("SENSORS_SAD"); break;
     default: Serial.println(myData.name); break;
   }
   Serial.print("Stage: ");
@@ -247,98 +257,3 @@ void GlobalStateMachine::SendMessageToReset() {
   EspNowSetAndSendMessage(statueSetting->name, Stages::STANDBY, BOTH_ENABLED, false);
 }
 #pragma endregion
-
-
-
-
-
-
-// // ==================== PHASES
-// void GlobalStateMachine::PrimerosMimitos() {
-//   if (estaEscultura != syncData.esculturaInteractuable) return;
-
-//   PlaySound(TRACK_SONG_1);
-
-//   // La escultura TRISTE es quien avanza la fase
-//   if (estaEscultura == TRISTE) {
-//     syncData.faseActual = DESARROLLO;
-//     syncData.esculturaInteractuable = FELIZ;
-//   } else {
-//     syncData.esculturaInteractuable = TRISTE;
-//   }
-
-//   SyncToOther();
-// }
-
-// void GlobalStateMachine::MimitosDesarrollo() {
-//   if (estaEscultura != syncData.esculturaInteractuable) return;
-
-//   PlaySound(TRACK_SONG_2);
-
-//   if (estaEscultura == FELIZ) syncData.esculturaInteractuable = TRISTE;
-//   else syncData.esculturaInteractuable = FELIZ;
-
-//   // TODO: definir condicion para pasar a FINAL segun cantidad de canciones
-//   // if (condicion) syncData.faseActual = FINAL;
-
-//   SyncToOther();
-// }
-
-// void GlobalStateMachine::MimitosFinal() {
-//   PlaySound(TRACK_BAD_ENDING);
-
-//   if (estaEscultura == FELIZ) syncData.felizListoParaFinal = true;
-//   else syncData.tristeListoParaFinal = true;
-
-//   SyncToOther();
-
-//   if (syncData.felizListoParaFinal && syncData.tristeListoParaFinal) {
-//     EjecutarFinal();
-//   }
-// }
-
-// void GlobalStateMachine::PrepararFinal() {
-//   if (estaEscultura == FELIZ) syncData.felizListoParaFinal = true;
-//   else syncData.tristeListoParaFinal = true;
-
-//   if (syncData.felizListoParaFinal && syncData.tristeListoParaFinal) {
-//     EspNowMessage msg;
-//     msg.name = (estaEscultura == FELIZ) ? "feliz" : "triste";
-//     msg.state = "EjecutarFinal";
-//     msg.songIndex = 0;
-//     msg.debug = "";
-//     EspNowSend(msg);
-//     EjecutarFinal();
-//   }
-// }
-
-// void GlobalStateMachine::EjecutarFinal() {
-//   PlaySound(TRACK_GOOD_ENDING);
-//   // TODO: manejar luces de final con timerLuces y deltaTime
-// }
-
-
-
-
-// // ==================== SYNC
-// void GlobalStateMachine::SyncToOther() {
-//   EspNowMessage msg;
-//   msg.name = (estaEscultura == FELIZ) ? "feliz" : "triste";
-//   msg.state = "ActualizarEstados";
-//   msg.songIndex = (int)syncData.faseActual;
-//   msg.debug = (syncData.esculturaInteractuable == FELIZ) ? "feliz" : "triste";
-//   EspNowSend(msg);
-// }
-
-// void GlobalStateMachine::OnReceiveData(const EspNowMessage& msg) {
-//   if (msg.state == "ActualizarEstados") {
-//     syncData.faseActual = (Fase)msg.songIndex;
-//     syncData.esculturaInteractuable = (msg.debug == "feliz") ? FELIZ : TRISTE;
-//   }
-//   else if (msg.state == "PrepararFinal") {
-//     PrepararFinal();
-//   }
-//   else if (msg.state == "EjecutarFinal") {
-//     EjecutarFinal();
-//   }
-//}

@@ -62,8 +62,6 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
 
 void StatueStateMachine::UpdatePetting() {
   lights->Update(Lights::LightState::ON, deltaTime);
-  //bool canChangeToIdle = sensorsManager->areAllSensorsOff();  //-----> DEBUG
-  //Serial.println("El cambio de estados de Pettign a Idle esta usando un cambio de estado para debug");
 
   bool canChangeToIdle = IsPlayingAudio();
   if (canChangeToIdle) {

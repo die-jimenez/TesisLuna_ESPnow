@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 #include "StatueStateMachine.h"
-#include "src/CustomEspNow/CustomEspNow.h"
-#include "src/StatueSetting/StatueSetting.h"
-#include "src/DeltaTime/DeltaTime.h"
+#include "CustomEspNow/CustomEspNow.h"
+#include "StatueSetting/StatueSetting.h"
+#include "DeltaTime/DeltaTime.h"
 
 class GlobalStateMachine {
 

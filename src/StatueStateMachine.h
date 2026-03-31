@@ -2,11 +2,11 @@
 #define __STATUESTATEMACHINE_H__
 
 #include <Arduino.h>
-#include "src/Lights/Lights.h"
-#include "src/DeltaTime/DeltaTime.h"
-#include "src/AudioPlayer/AudioPlayer.h"
-#include "src/StatueSetting/StatueSetting.h"
-#include "src/SensorsManager/SensorsManager.h"
+#include "Lights/Lights.h"
+#include "DeltaTime/DeltaTime.h"
+#include "AudioPlayer/AudioPlayer.h"
+#include "StatueSetting/StatueSetting.h"
+#include "SensorsManager/SensorsManager.h"
 
 
 class StatueStateMachine {

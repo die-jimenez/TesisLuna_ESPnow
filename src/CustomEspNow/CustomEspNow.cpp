@@ -81,17 +81,18 @@ void EspNowSend(const EspNowMessage& data) {
   }
 }
 
-void EspNowSetMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding) {
+void EspNowSetMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding, bool toAudio) {
   Serial.println("");
   myData.name = name;
   myData.stage = stage;
   myData.statueEnabled = statueEnabled;
   myData.isReadyToHappyEnding = isReadyToHappyEnding;
   myData.publicPassword = PublicPassword;
+  myData.toAudio = toAudio;
 }
 
-void EspNowSetAndSendMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding) {
-  EspNowSetMessage(name, stage, statueEnabled, isReadyToHappyEnding);
+void EspNowSetAndSendMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding, bool toAudio) {
+  EspNowSetMessage(name, stage, statueEnabled, isReadyToHappyEnding, toAudio);
   EspNowSend(myData);
 }
 
@@ -101,6 +102,7 @@ void EspNowSendExample() {
   myData.statueEnabled = 0;
   myData.isReadyToHappyEnding = false;
   myData.publicPassword = PublicPassword;
+  myData.toAudio = false;
 
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t*)&myData, sizeof(EspNowMessage));
@@ -138,6 +140,8 @@ void EspNowPrintSendData() {
   }
   Serial.print("Is ready to happy ending: ");
   Serial.println(myData.isReadyToHappyEnding ? "true" : "false");
+  Serial.print("Is to audio: ");
+  Serial.println(myData.toAudio ? "true" : "false");
   Serial.println("--------------------------------------------");
   Serial.println();
 }
@@ -168,6 +172,8 @@ void EspNowPrintReceiveData() {
   }
   Serial.print("Is ready to happy ending: ");
   Serial.println(otherData.isReadyToHappyEnding ? "true" : "false");
+    Serial.print("Is to audio: ");
+  Serial.println(otherData.toAudio ? "true" : "false");
   Serial.println("--------------------------------------------");
   Serial.println();
 }

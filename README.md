@@ -12,3 +12,7 @@ DF-PlayerMini - HW-247A (Muy mal clon) -> https://github.com/enjoyneering/DFPlay
 
 
 //Pines que no puedo usar: 0, 2, 5, 12 https://www.luisllamas.es/en/esp32-hardware-details-pinout/
+
+
+
+# Documentación

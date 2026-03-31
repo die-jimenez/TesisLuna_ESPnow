@@ -14,10 +14,15 @@ public:
     TRACK_BAD_ENDING      // 5
   };
   enum Name {
-    HAPPY,
-    SAD
+    SENSORS_HAPPY,
+    SENSORS_SAD,
+    AUDIO_HAPPY,
+    AUDIO_SAD
   };
-
+  enum Destination {
+    ToOtherMaster,  //false
+    ToAudio         //true
+  };
   Name name;
 
   StatueSetting(Name _name);
