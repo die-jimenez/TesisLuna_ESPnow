@@ -73,7 +73,7 @@ int contadorInteraccion;
 int contadorMimitos;
 
 
-//Parametros Modificables
+//PARAMETROS MODIFICABLES
 //===================================================
 #define STATUE_SAD //--------------------------------> CAMBIAR ESTA VARIABLE PARA CAMBIAR LAS ESTATUAS =>
 
