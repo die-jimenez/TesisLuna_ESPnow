@@ -29,6 +29,8 @@ void Audio_Setup() {
 
   Mp3ModuleInit(RXD2, TXD2, BUSY);
   delay(500);
+  
+  PlaySound(1);
 
   Serial.println("Setup completo");
   Serial.println("--------------------------------------------");
@@ -53,7 +55,6 @@ void Audio_Loop() {
 
 void OnReceiveData(const EspNowMessage& data) {
   //if (!data.toAudio) return;
-
   Serial.print("Reproduciendo track para stage: ");
   Serial.println(data.stage);
 
