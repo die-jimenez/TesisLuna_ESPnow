@@ -4,9 +4,9 @@
 #include "src/CustomEspNow/CustomEspNow.h"
 #include "src/StatueSetting/StatueSetting.h"
 
-#define RXD2 16
-#define TXD2 17
-#define BUSY 4
+#define RXD2 20
+#define TXD2 21
+#define BUSY 10
 
 #ifdef STATUE_HAPPY
 StatueSetting statueSetting(StatueSetting::Name::AUDIO_HAPPY);
@@ -22,7 +22,7 @@ void OnReceiveData(const EspNowMessage& data);
 void Audio_Setup() {
   Serial.begin(115200);
   Serial.println("Iniciando ESP-Audio");
-  delay(10000);
+  delay(15000);
 
   EspNowInit();
   EspNowRegisterOnReceive(OnReceiveData);
@@ -42,18 +42,17 @@ void Audio_Loop() {
     EspNowSetAndSendMessage(
       (int)statueSetting.name,  // AUDIO_HAPPY o AUDIO_SAD
       0,
-      3, //NONE -> esta en el GlobalStateMachine
+      3,  //NONE -> esta en el GlobalStateMachine
       false,
       false  // toAudio = false, va al ESP-Sensores
     );
   }
   wasPlaying = playing;
-
   delay(5);
 }
 
 void OnReceiveData(const EspNowMessage& data) {
-  if (!data.toAudio) return;
+  //if (!data.toAudio) return;
 
   Serial.print("Reproduciendo track para stage: ");
   Serial.println(data.stage);
