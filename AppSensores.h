@@ -71,8 +71,6 @@ int contadorMimitos;
 
 #pragma region->Parametros modificables
 //===================================================
-#define STATUE_SAD  //--------------------------------> CAMBIAR ESTA VARIABLE PARA CAMBIAR LAS ESTATUAS =>
-
 #ifdef STATUE_HAPPY
 StatueSetting statueSetting(StatueSetting::Name::SENSORS_HAPPY);  //SENSORS_HAPPY || SENSORS_SAD
 const uint8_t SENSORS_COUNT = 4;                                  //Sensores activos. Evita pinouts de más

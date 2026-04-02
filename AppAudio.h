@@ -8,8 +8,6 @@
 #define TXD2 17
 #define BUSY 4
 
-#define STATUE_SAD  //--------------------------------> CAMBIAR PARA CAMBIAR ESTATUA
-
 #ifdef STATUE_HAPPY
 StatueSetting statueSetting(StatueSetting::Name::AUDIO_HAPPY);
 #endif
@@ -44,7 +42,7 @@ void Audio_Loop() {
     EspNowSetAndSendMessage(
       (int)statueSetting.name,  // AUDIO_HAPPY o AUDIO_SAD
       0,
-      BOTH_ENABLED,
+      3, //NONE -> esta en el GlobalStateMachine
       false,
       false  // toAudio = false, va al ESP-Sensores
     );
@@ -61,10 +59,20 @@ void OnReceiveData(const EspNowMessage& data) {
   Serial.println(data.stage);
 
   switch (data.stage) {
-    case 0: PlaySound(StatueSetting::AudiosTrack::TRACK_PURR_COMPLAIN); break;
-    case 1: PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_1); break;
-    case 2: PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_2); break;
-    case 3: PlaySound(data.isReadyToHappyEnding ? StatueSetting::AudiosTrack::TRACK_GOOD_ENDING : StatueSetting::AudiosTrack::TRACK_BAD_ENDING); break;
+    case 0:
+      PlaySound(StatueSetting::AudiosTrack::TRACK_PURR_COMPLAIN);
+      break;
+    case 1:
+      PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_1);
+      break;
+    case 2:
+      PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_2);
+      break;
+    case 3:
+      if (data.isReadyToHappyEnding) {
+        PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
+      } else PlaySound(StatueSetting::AudiosTrack::TRACK_BAD_ENDING);
+      break;
   }
   DelayForBusyUpdate();
 }
