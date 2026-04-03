@@ -66,9 +66,7 @@ void StatueStateMachine::UpdatePetting() {
   bool canChangeToIdle = IsPlayingAudio();
   if (canChangeToIdle) {
     //Enviar mensaje a la otra escultura
-    if (onAudioFinishedCallback != nullptr) {
-      onAudioFinishedCallback();
-    }
+    if (onAudioFinishedCallback != nullptr) onAudioFinishedCallback();
     ResetInteractionState();
   }
 }

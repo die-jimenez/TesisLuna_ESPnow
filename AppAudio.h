@@ -4,9 +4,9 @@
 #include "src/CustomEspNow/CustomEspNow.h"
 #include "src/StatueSetting/StatueSetting.h"
 
-#define RXD2 20
-#define TXD2 21
-#define BUSY 10
+#define RXD2 16   // 20
+#define TXD2 17   // 21
+#define BUSY 4  //10
 
 #ifdef STATUE_HAPPY
 StatueSetting statueSetting(StatueSetting::Name::AUDIO_HAPPY);
@@ -15,21 +15,23 @@ StatueSetting statueSetting(StatueSetting::Name::AUDIO_HAPPY);
 StatueSetting statueSetting(StatueSetting::Name::AUDIO_SAD);
 #endif
 
-bool wasPlaying = false;
-
+bool wasPlaying = true;
 void OnReceiveData(const EspNowMessage& data);
+
+
 
 void Audio_Setup() {
   Serial.begin(115200);
+
   Serial.println("Iniciando ESP-Audio");
-  delay(15000);
+  delay(12000);
 
   EspNowInit();
   EspNowRegisterOnReceive(OnReceiveData);
 
   Mp3ModuleInit(RXD2, TXD2, BUSY);
-  delay(500);
-  
+  delay(2000);
+
   PlaySound(1);
 
   Serial.println("Setup completo");
@@ -54,7 +56,8 @@ void Audio_Loop() {
 }
 
 void OnReceiveData(const EspNowMessage& data) {
-  //if (!data.toAudio) return;
+  Serial.println("LLego un mensaje");
+  if (!data.toAudio) return;
   Serial.print("Reproduciendo track para stage: ");
   Serial.println(data.stage);
 

@@ -10,10 +10,10 @@
 //#define AUDIO_MODULE_DFP
 
 // HW-247A clon
-#define AUDIO_MODULE_HW247
+//#define AUDIO_MODULE_HW247
 
 // MP3-TF-16P clon
-//#define AUDIO_MODULE_TF
+#define AUDIO_MODULE_TF
 // ===================================
 
 #ifdef AUDIO_MODULE_DFP

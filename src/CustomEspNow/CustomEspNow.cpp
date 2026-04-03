@@ -153,6 +153,8 @@ void EspNowPrintReceiveData() {
   switch (otherData.name) {
     case 0: Serial.println("HAPPY"); break;
     case 1: Serial.println("SAD"); break;
+    case 2: Serial.println("AUDIO_SAD"); break;
+    case 3: Serial.println("AUDIO_HAPPY"); break;
     default: Serial.println(otherData.name); break;
   }
   Serial.print("Stage: ");
@@ -168,11 +170,12 @@ void EspNowPrintReceiveData() {
     case 0: Serial.println("HAPPY_ENABLED"); break;
     case 1: Serial.println("SAD_ENABLED"); break;
     case 2: Serial.println("BOTH_ENABLED"); break;
+    case 3: Serial.println("NONE (EMPTY)"); break;
     default: Serial.println(otherData.statueEnabled); break;
   }
   Serial.print("Is ready to happy ending: ");
   Serial.println(otherData.isReadyToHappyEnding ? "true" : "false");
-    Serial.print("Is to audio: ");
+  Serial.print("Is to audio: ");
   Serial.println(otherData.toAudio ? "true" : "false");
   Serial.println("--------------------------------------------");
   Serial.println();

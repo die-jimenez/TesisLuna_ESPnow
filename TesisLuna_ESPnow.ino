@@ -1,7 +1,7 @@
 #define STATUE_SAD  // <--- único lugar donde cambiás
-#define ROL_AUDIO   // <--- ROL_AUDIO o ROL_SENSORES
+#define ROL_SENSORS   // <--- ROL_AUDIO o ROL_SENSORES
 
-#ifdef ROL_SENSORES
+#ifdef ROL_SENSORS
 #include "AppSensores.h"
 #endif
 #ifdef ROL_AUDIO
@@ -9,7 +9,7 @@
 #endif
 
 void setup() {
-#ifdef ROL_SENSORES
+#ifdef ROL_SENSORS
   Sensores_Setup();
 #endif
 #ifdef ROL_AUDIO
@@ -18,7 +18,7 @@ void setup() {
 }
 
 void loop() {
-#ifdef ROL_SENSORES
+#ifdef ROL_SENSORS
   Sensores_Loop();
 #endif
 #ifdef ROL_AUDIO

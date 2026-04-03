@@ -73,7 +73,7 @@ int contadorMimitos;
 //===================================================
 #ifdef STATUE_HAPPY
 StatueSetting statueSetting(StatueSetting::Name::SENSORS_HAPPY);  //SENSORS_HAPPY || SENSORS_SAD
-const uint8_t SENSORS_COUNT = 4;                                  //Sensores activos. Evita pinouts de más
+const uint8_t SENSORS_COUNT = 5;                                  //Sensores activos. Evita pinouts de más
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;                          //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
 const float pettingTriggerTime = 2.5;                             // Minimmo: 1.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
@@ -85,7 +85,7 @@ const int MIN_SENSORS_ACTIVE_TO_PET = 2;                        //Minimo de sens
 const float pettingTriggerTime = 2.5;                           //Minimmo: 1.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
 
-const float INACTIVITY_TIMEOUT = 90.0;
+const float INACTIVITY_TIMEOUT = 15.0;
 const float BAD_ENDING_RESET_TIMEOUT = 30.0;
 SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 #pragma endregion
