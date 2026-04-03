@@ -1,5 +1,5 @@
 #define STATUE_HAPPY  // <--- único lugar donde cambiás
-#define ROL_AUDIO   // <--- ROL_AUDIO o ROL_SENSORS
+#define ROL_SENSORS   // <--- ROL_AUDIO o ROL_SENSORS
 
 #ifdef ROL_SENSORS
 #include "AppSensores.h"

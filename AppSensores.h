@@ -108,12 +108,12 @@ void DebugStage(GlobalStateMachine* global, GlobalStateMachine::Stages x);
 //===================================================
 void Sensores_Setup() {
   Serial.begin(115200);
-  delay(1000);
+  delay(3000);
   Serial.println("Iniciando sensores");
 
   //Global state machine
   globalStateMachine.Init(&statueSetting, &statueStateMachine, &deltaTime);
-  //DebugStage(&globalStateMachine, GlobalStateMachine::Stages::FINAL);
+  DebugStage(&globalStateMachine, GlobalStateMachine::Stages::DESARROLLO);
 
   //State Machine
   statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);

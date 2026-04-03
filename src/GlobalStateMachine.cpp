@@ -29,13 +29,18 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
     return;
   }
 
+  //PARCHE: Ahora, la preparacion final se da por el stage, y no por el isReadyToHappyEnding.
+  //esto provoca que el cambio de fase active el final en SAD. Esto busca evitar que se dispare de esa
+  bool wasOnDesarrollo = stage == Stages::DESARROLLO;
+  Serial.println("STAGESSSSS");
+  Serial.println(wasOnDesarrollo);
+
+
   UpdateStage(otherData.stage);
   UpdateStatueEnabled(otherData.statueEnabled);
 
-  if (stage == Stages::FINAL) {
+  if (stage == Stages::FINAL && !wasOnDesarrollo)
     SyncFinalOnRecieve(otherData);
-    PrintEndingInfo();
-  }
 
   //Evita reinicio por inactividad
   resetTimer = 0;
@@ -78,20 +83,19 @@ void GlobalStateMachine::UpdateStatueEnabled(int enabledMode) {
 }
 
 void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
+  if (otherData.stage != (int)Stages::FINAL) return;
 
   if (otherData.name == (int)StatueSetting::Name::SENSORS_HAPPY) {
-    happyOnGoodEnding = otherData.isReadyToHappyEnding;
+    happyOnGoodEnding = true;
   } else if (otherData.name == (int)StatueSetting::Name::SENSORS_SAD) {
-    sadOnGoodEnding = otherData.isReadyToHappyEnding;
+    sadOnGoodEnding = true;
   }
+  PrintEndingInfo();
 
   if (happyOnGoodEnding && sadOnGoodEnding) {
     Serial.println(">>> Sincronización completa: Iniciando FINAL FELIZ");
     EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
     //PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
-
-    // Aquí puedes añadir efectos visuales extra si quieres
-    // statueStateMachine->TriggerHappyEndingLights();
   }
 }
 #pragma endregion
@@ -120,38 +124,25 @@ void GlobalStateMachine::OnAudioFinished() {
 void GlobalStateMachine::OnPettingStarted() {
   switch (stage) {
     case (int)Stages::STANDBY:
-      EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, false, statueSetting->ToAudio);
-      //PlaySound(StatueSetting::AudiosTrack::TRACK_PURR_COMPLAIN);
-      DelayForBusyUpdate();
-      break;
-
     case (int)Stages::INTRO:
-      EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, false, statueSetting->ToAudio);
-      //PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_1);
-      DelayForBusyUpdate();
-      break;
-
     case (int)Stages::DESARROLLO:
       EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, false, statueSetting->ToAudio);
-      //PlaySound(StatueSetting::AudiosTrack::TRACK_SONG_2);
-      DelayForBusyUpdate();
       break;
 
     case (int)Stages::FINAL:
-      if (statueSetting->name == StatueSetting::Name::SENSORS_HAPPY) {
-        happyOnGoodEnding = true;
-      } else if (statueSetting->name == StatueSetting::Name::SENSORS_SAD) {
-        sadOnGoodEnding = true;
-      }
-      // Sincronizamos con la otra para que también ejecute el final
-      EspNowSetAndSendMessage(statueSetting->name, (int)stage, BOTH_ENABLED, true);
+      // Marca que esta estatua fue activada
+      if (statueSetting->name == StatueSetting::Name::SENSORS_HAPPY) happyOnGoodEnding = true;
+      else sadOnGoodEnding = true;
+
+      // Avisar al otro ESP de sensores que fue activado
+      EspNowSetAndSendMessage(statueSetting->name, (int)stage, BOTH_ENABLED, false, false);
+
+      // Mandar al propio audio
+      bool goodEnding = happyOnGoodEnding && sadOnGoodEnding;
+      EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, goodEnding, true);
+
       EspNowPrintSendData();
       PrintEndingInfo();
-
-
-      if (happyOnGoodEnding && sadOnGoodEnding) PlayFinal(true);
-      else PlayFinal(false);
-      DelayForBusyUpdate();
       break;
   }
 }
@@ -159,24 +150,63 @@ void GlobalStateMachine::OnPettingStarted() {
 #pragma endregion
 
 
-void GlobalStateMachine::PlayFinal(bool goodEnding) {
+void GlobalStateMachine::NextStageOrPassTurn(GlobalStateMachine::Stages nextStage) {
 
-  if (goodEnding) {
-    //PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
-    EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
-    // Opcional: Podrías llamar a FullReset() después de un delay o cuando termine el audio en OnAudioFinished.
-  } else {
-    EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
+  //Cambia de Stage si es "SAD",
+  if (statueSetting->name == StatueSetting::Name::SENSORS_SAD) {
+    switch (stage) {
+      case (int)Stages::STANDBY:
+      case (int)Stages::INTRO:
+        stage = nextStage;
+        EspNowSetAndSendMessage(statueSetting->name, (int)stage, HAPPY_ENABLED, false);
+        break;
+      case (int)Stages::DESARROLLO:
+        stage = nextStage;
+        EspNowSetAndSendMessage(statueSetting->name, (int)stage, BOTH_ENABLED, false);
+        break;
+    }
+  }
+  // o solo pasa de turno si es "HAPPY"
+  else if (statueSetting->name == StatueSetting::Name::SENSORS_HAPPY) {
+    switch (stage) {
+      case (int)Stages::STANDBY:
+      case (int)Stages::INTRO:
+      case (int)Stages::DESARROLLO:
+        EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
+        break;
+      case (int)Stages::FINAL:
+        EspNowSetAndSendMessage(statueSetting->name, (int)stage, BOTH_ENABLED, false);
+        break;
+    }
   }
 }
 
-void GlobalStateMachine::NextStageOrPassTurn(GlobalStateMachine::Stages nextStage) {
-  //Cambia de Stage si es "SAD", o solo pasa de turno si es "HAPPY"
-  if (statueSetting->name == StatueSetting::Name::SENSORS_SAD) {
-    stage = nextStage;
-    EspNowSetAndSendMessage(statueSetting->name, (int)stage, HAPPY_ENABLED, false);
-  } else EspNowSetAndSendMessage(statueSetting->name, (int)stage, SAD_ENABLED, false);
-}
+
+
+
+
+// void GlobalStateMachine::PlayFinal(bool goodEnding) {
+
+//   if (goodEnding) {
+//     //PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
+//     EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
+//     // Opcional: Podrías llamar a FullReset() después de un delay o cuando termine el audio en OnAudioFinished.
+//   } else {
+//     EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
+//   }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

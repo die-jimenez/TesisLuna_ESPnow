@@ -136,6 +136,7 @@ void EspNowPrintSendData() {
     case 0: Serial.println("HAPPY_ENABLED"); break;
     case 1: Serial.println("SAD_ENABLED"); break;
     case 2: Serial.println("BOTH_ENABLED"); break;
+    case 3: Serial.println("NONE (EMPTY)"); break;
     default: Serial.println(myData.statueEnabled); break;
   }
   Serial.print("Is ready to happy ending: ");

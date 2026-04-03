@@ -22,8 +22,9 @@ void OnReceiveData(const EspNowMessage& data);
 
 void Audio_Setup() {
   Serial.begin(115200);
-
-  Serial.println("Iniciando ESP-Audio");
+  delay(1000);
+  Serial.print("Iniciando ESP-Audio: ");
+  Serial.print(statueSetting.name);
   delay(12000);
 
   EspNowInit();
@@ -41,7 +42,7 @@ void Audio_Setup() {
 bool isCurrentlyPlaying() {
   // Invertimos aquí para que la función devuelva TRUE cuando REALMENTE suena
   // Antes se hacia de otra fomra y esto es un maquillaje
-  return IsPlayingAudio() == 0; 
+  return IsPlayingAudio() == 0;
 }
 
 void Audio_Loop() {
@@ -56,9 +57,9 @@ void Audio_Loop() {
       false,
       false  // toAudio = false, va al ESP-Sensores
     );
+    wasPlaying = false;
   }
-  wasPlaying = nowPlaying;
-  delay(5);
+  DelayForBusyUpdate();
 }
 
 void OnReceiveData(const EspNowMessage& data) {
@@ -91,5 +92,6 @@ void OnReceiveData(const EspNowMessage& data) {
       } else PlaySound(StatueSetting::AudiosTrack::TRACK_BAD_ENDING);
       break;
   }
+  wasPlaying = true;
   DelayForBusyUpdate();
 }
