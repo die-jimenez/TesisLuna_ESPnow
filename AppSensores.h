@@ -85,7 +85,7 @@ const int MIN_SENSORS_ACTIVE_TO_PET = 2;                        //Minimo de sens
 const float pettingTriggerTime = 2.5;                           //Minimmo: 1.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
 
-const float INACTIVITY_TIMEOUT = 15.0;
+const float INACTIVITY_TIMEOUT = 60.0;
 const float BAD_ENDING_RESET_TIMEOUT = 30.0;
 SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 #pragma endregion
@@ -108,8 +108,8 @@ void DebugStage(GlobalStateMachine* global, GlobalStateMachine::Stages x);
 //===================================================
 void Sensores_Setup() {
   Serial.begin(115200);
-  Serial.println("Iniciando");
-  delay(15000);
+  delay(1000);
+  Serial.println("Iniciando sensores");
 
   //Global state machine
   globalStateMachine.Init(&statueSetting, &statueStateMachine, &deltaTime);
@@ -125,11 +125,6 @@ void Sensores_Setup() {
   EspNowInit();
   EspNowRegisterOnSend(OnSendData);
   EspNowRegisterOnReceive(OnReceiveData);
-
-  //Audio module
-  Mp3ModuleInit(RXD2, TXD2, BUSY);
-  delay(500);
-  PlaySound(1);
 
   // //Sensors init
   sensorsManager.SetShowDebug(true);

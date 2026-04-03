@@ -55,6 +55,7 @@ public:
   void UpdateIdle();
   void UpdateInteraction(float triggerToPetting, int minSensorsToPet);
   void UpdatePetting();
+  void NotifyAudioFinished();
 
   //Handle Interaction State
   //===================================================

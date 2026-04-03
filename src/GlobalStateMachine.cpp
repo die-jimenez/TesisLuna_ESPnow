@@ -19,13 +19,13 @@ void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine*
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   if (!CheckPublicPassword(otherData.publicPassword)) return;
 
-  bool isMyAudio =
+  bool isMyAudioMessage =
     (statueSetting->name == StatueSetting::Name::SENSORS_HAPPY && otherData.name == (int)StatueSetting::Name::AUDIO_HAPPY)
     || (statueSetting->name == StatueSetting::Name::SENSORS_SAD && otherData.name == (int)StatueSetting::Name::AUDIO_SAD);
 
-  if (isAudioMessage) {
+  if (isMyAudioMessage) {
     Serial.println("DEBE HACER ALGOOOO");
-    //HandleAudioMessage(otherData);
+    statueStateMachine->NotifyAudioFinished();
     return;
   }
 

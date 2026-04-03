@@ -54,7 +54,6 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
   }
 
   bool canChangeToIdle = sensorsManager->areAllSensorsOff();
-  //To idle
   if (canChangeToIdle) {
     ResetInteractionState();
   }
@@ -62,13 +61,14 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
 
 void StatueStateMachine::UpdatePetting() {
   lights->Update(Lights::LightState::ON, deltaTime);
+}
 
-  bool canChangeToIdle = IsPlayingAudio();
-  if (canChangeToIdle) {
-    //Enviar mensaje a la otra escultura
-    if (onAudioFinishedCallback != nullptr) onAudioFinishedCallback();
-    ResetInteractionState();
-  }
+void StatueStateMachine::NotifyAudioFinished(){
+  if (state != PETTING) return;
+  
+  //Enviar mensaje a la otra escultura
+  if (onAudioFinishedCallback != nullptr) onAudioFinishedCallback();
+  ResetInteractionState();
 }
 
 // ==================== HANDLE INTERACTION STATE

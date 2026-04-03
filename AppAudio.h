@@ -4,9 +4,9 @@
 #include "src/CustomEspNow/CustomEspNow.h"
 #include "src/StatueSetting/StatueSetting.h"
 
-#define RXD2 16   // 20
-#define TXD2 17   // 21
-#define BUSY 4  //10
+#define RXD2 16  // 20
+#define TXD2 17  // 21
+#define BUSY 4   //10
 
 #ifdef STATUE_HAPPY
 StatueSetting statueSetting(StatueSetting::Name::AUDIO_HAPPY);
@@ -15,7 +15,7 @@ StatueSetting statueSetting(StatueSetting::Name::AUDIO_HAPPY);
 StatueSetting statueSetting(StatueSetting::Name::AUDIO_SAD);
 #endif
 
-bool wasPlaying = true;
+bool wasPlaying = false;
 void OnReceiveData(const EspNowMessage& data);
 
 
@@ -38,10 +38,16 @@ void Audio_Setup() {
   Serial.println("--------------------------------------------");
 }
 
-void Audio_Loop() {
-  bool playing = IsPlayingAudio();
+bool isCurrentlyPlaying() {
+  // Invertimos aquí para que la función devuelva TRUE cuando REALMENTE suena
+  // Antes se hacia de otra fomra y esto es un maquillaje
+  return IsPlayingAudio() == 0; 
+}
 
-  if (wasPlaying && !playing) {
+void Audio_Loop() {
+  bool nowPlaying = isCurrentlyPlaying();
+
+  if (wasPlaying && !nowPlaying) {
     Serial.println("Audio terminado, avisando al ESP-Sensores");
     EspNowSetAndSendMessage(
       (int)statueSetting.name,  // AUDIO_HAPPY o AUDIO_SAD
@@ -51,13 +57,21 @@ void Audio_Loop() {
       false  // toAudio = false, va al ESP-Sensores
     );
   }
-  wasPlaying = playing;
+  wasPlaying = nowPlaying;
   delay(5);
 }
 
 void OnReceiveData(const EspNowMessage& data) {
-  Serial.println("LLego un mensaje");
-  if (!data.toAudio) return;
+
+  bool isForMe =
+    (statueSetting.name == (int)StatueSetting::Name::AUDIO_HAPPY && data.name == (int)StatueSetting::Name::SENSORS_HAPPY)
+    || (statueSetting.name == (int)StatueSetting::Name::AUDIO_SAD && data.name == (int)StatueSetting::Name::SENSORS_SAD);
+
+  if (!isForMe || !data.toAudio) {
+    Serial.println("LLego un mensaje que no era para mi");
+    return;
+  }
+
   Serial.print("Reproduciendo track para stage: ");
   Serial.println(data.stage);
 
