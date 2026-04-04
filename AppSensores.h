@@ -173,6 +173,7 @@ void Sensores_Loop() {
 
 //Estos son los metodos custom para utilizar CustomEspNow
 void OnReceiveData(const EspNowMessage& data) {
+  if (data.destination != (int)statueSetting.name) return;
   globalStateMachine.OnReciveMessage(data);
 }
 

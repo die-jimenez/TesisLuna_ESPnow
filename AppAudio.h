@@ -63,15 +63,8 @@ void Audio_Loop() {
 }
 
 void OnReceiveData(const EspNowMessage& data) {
-
-  bool isForMe =
-    (statueSetting.name == (int)StatueSetting::Name::AUDIO_HAPPY && data.name == (int)StatueSetting::Name::SENSORS_HAPPY)
-    || (statueSetting.name == (int)StatueSetting::Name::AUDIO_SAD && data.name == (int)StatueSetting::Name::SENSORS_SAD);
-
-  if (!isForMe || !data.toAudio) {
-    Serial.println("LLego un mensaje que no era para mi");
-    return;
-  }
+  //Si el mensaje no es para el (destination), entonces lo ignora
+  if (data.destination != (int)statueSetting.name) return;
 
   Serial.print("Reproduciendo track para stage: ");
   Serial.println(data.stage);
