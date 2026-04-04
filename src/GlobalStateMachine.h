@@ -48,6 +48,8 @@ private:
   void NextStageOrPassTurn(GlobalStateMachine::Stages nextStage);
   void PrintEndingInfo();
 
+  void MessageToAudio(int _stage, bool _canPlayGoodEnding);
+
 
 
 public:

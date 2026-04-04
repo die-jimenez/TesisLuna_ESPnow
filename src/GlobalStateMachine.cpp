@@ -94,7 +94,7 @@ void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
 
   if (happyOnGoodEnding && sadOnGoodEnding) {
     Serial.println(">>> Sincronización completa: Iniciando FINAL FELIZ");
-    EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
+    MessageToAudio((int)stage, true);
     //PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
   }
 }
@@ -126,7 +126,7 @@ void GlobalStateMachine::OnPettingStarted() {
     case (int)Stages::STANDBY:
     case (int)Stages::INTRO:
     case (int)Stages::DESARROLLO:
-      EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, false, statueSetting->ToAudio);
+      MessageToAudio((int)stage,  false);
       break;
 
     case (int)Stages::FINAL:
@@ -147,6 +147,9 @@ void GlobalStateMachine::OnPettingStarted() {
   }
 }
 
+void GlobalStateMachine::MessageToAudio(int _stage, bool _canPlayGoodEnding) {
+  EspNowSetAndSendMessage(statueSetting->name, _stage, NONE, _canPlayGoodEnding, statueSetting->ToAudio);
+}
 #pragma endregion
 
 
