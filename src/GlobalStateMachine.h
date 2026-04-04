@@ -17,6 +17,7 @@ public:
     FINAL
   };
   Stages stage = STANDBY;
+  Stages lastStage = STANDBY;
 
 private:
   DeltaTime* deltaTime;

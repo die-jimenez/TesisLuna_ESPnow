@@ -29,17 +29,16 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
     return;
   }
 
-  //PARCHE: Ahora, la preparacion final se da por el stage, y no por el isReadyToHappyEnding.
-  //esto provoca que el cambio de fase active el final en SAD. Esto busca evitar que se dispare de esa
-  bool wasOnDesarrollo = stage == Stages::DESARROLLO;
-  Serial.println("STAGESSSSS");
-  Serial.println(wasOnDesarrollo);
-
-
+  lastStage = stage;
   UpdateStage(otherData.stage);
   UpdateStatueEnabled(otherData.statueEnabled);
 
-  if (stage == Stages::FINAL && !wasOnDesarrollo)
+
+  //PARCHE: Ahora, la preparacion final se da por el stage, y no por el isReadyToHappyEnding.
+  Serial.println("STAGESSSSS");
+  Serial.println(lastStage);
+
+  if (stage == Stages::FINAL && lastStage== Stages::FINAL)
     SyncFinalOnRecieve(otherData);
 
   //Evita reinicio por inactividad
@@ -47,6 +46,7 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
 }
 
 void GlobalStateMachine::OnSendMessage(const EspNowMessage& myData) {
+  if (myData.toAudio) return;
   bool shouldSenderKeepEnabled = myData.statueEnabled == BOTH_ENABLED;
   statueStateMachine->SetCanInteract(shouldSenderKeepEnabled);
   //Evita reinicio por inactividad
@@ -126,7 +126,8 @@ void GlobalStateMachine::OnPettingStarted() {
     case (int)Stages::STANDBY:
     case (int)Stages::INTRO:
     case (int)Stages::DESARROLLO:
-      MessageToAudio((int)stage,  false);
+      MessageToAudio((int)stage, false);
+      PrintEndingInfo();
       break;
 
     case (int)Stages::FINAL:

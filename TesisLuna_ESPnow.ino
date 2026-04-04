@@ -1,4 +1,4 @@
-#define STATUE_SAD  // <--- único lugar donde cambiás
+#define STATUE_SAD // <--- único lugar donde cambiás
 #define ROL_SENSORS   // <--- ROL_AUDIO o ROL_SENSORS
 
 #ifdef ROL_SENSORS
