@@ -63,13 +63,13 @@ void StatueStateMachine::UpdatePetting() {
   lights->Update(Lights::LightState::ON, deltaTime);
 }
 
-void StatueStateMachine::NotifyAudioFinished(){
-  if (state != PETTING) return;
+// void StatueStateMachine::NotifyAudioFinished(){
+//   if (state != PETTING) return;
   
-  //Enviar mensaje a la otra escultura
-  if (onAudioFinishedCallback != nullptr) onAudioFinishedCallback();
-  ResetInteractionState();
-}
+//   //Enviar mensaje a la otra escultura
+//   if (onAudioFinishedCallback != nullptr) onAudioFinishedCallback();
+//   ResetInteractionState();
+// }
 
 // ==================== HANDLE INTERACTION STATE
 void StatueStateMachine::SetCanInteract(bool _canInteract) {
@@ -98,7 +98,4 @@ void StatueStateMachine::ResetStatue() {
 // ==================== Events to send message through EspNow
 void StatueStateMachine::RegisterOnPettingStarted(StatueStateMachine::OnPettingStartedCallback fn) {
   onPettingStartedCallback = fn;
-}
-void StatueStateMachine::RegisterOnAudioFinished(StatueStateMachine::OnAudioFinishedCallback fn) {
-  onAudioFinishedCallback = fn;
 }
