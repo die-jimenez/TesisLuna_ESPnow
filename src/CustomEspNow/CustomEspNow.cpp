@@ -1,16 +1,19 @@
 //Example: https://docs.arduino.cc/tutorials/nano-esp32/esp-now/
 
 #include "CustomEspNow.h"
+#include "../StatueSetting/StatueSetting.h"
 #include <esp_now.h>
 #include <WiFi.h>
 
 // ====== DIRECCIÓN DE ENVÍO ======
 uint8_t broadcastAddress[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };  //REPLACE WITH YOUR RECEIVER MAC Address
 
+int espName;
 EspNowMessage myData;
 EspNowMessage otherData;
 EspNowMessage dataExample;
 static esp_now_peer_info_t peerInfo;
+
 
 // ====== CALLBACK ======
 static OnReceiveCallback onReceiveCallback;
@@ -31,19 +34,46 @@ void OnDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
 
 void OnDataRecv(const uint8_t* mac, const uint8_t* incomingData, int len) {
   memcpy(&otherData, incomingData, sizeof(otherData));
-  Serial.println("MENSAJE RECIBIDO");
-  EspNowPrintReceiveData();
 
+  //Contraseña de "seguridad"
   if (otherData.publicPassword != PublicPassword) {
     Serial.println("Mensaje rechazado: contraseña incorrecta");
     return;
   }
+  Serial.print("espName: ");
+  Serial.println(espName);
+
+  //FILTROS PARA LOS MENSAJES
+  bool shouldIgnore = false;
+  switch (espName) {
+    case (int)StatueSetting::Name::SENSORS_HAPPY:
+      shouldIgnore = otherData.name == (int)StatueSetting::Name::AUDIO_SAD
+                     || otherData.toAudio;
+      break;
+    case (int)StatueSetting::Name::SENSORS_SAD:
+      shouldIgnore = otherData.name == (int)StatueSetting::Name::AUDIO_HAPPY
+                     || otherData.toAudio;
+      break;
+    case (int)StatueSetting::Name::AUDIO_HAPPY:
+      shouldIgnore = otherData.name != (int)StatueSetting::Name::SENSORS_HAPPY
+                     || !otherData.toAudio;
+      break;
+    case (int)StatueSetting::Name::AUDIO_SAD:
+      shouldIgnore = otherData.name != (int)StatueSetting::Name::SENSORS_SAD
+                     || !otherData.toAudio;
+      break;
+  }
+  if (shouldIgnore) return;
+
+  Serial.println("MENSAJE RECIBIDO");
+  EspNowPrintReceiveData();
+
   if (onReceiveCallback != nullptr) onReceiveCallback(otherData);
 }
 // ===============================================
 
 
-void EspNowInit() {
+void EspNowInit(int _espName) {
   WiFi.mode(WIFI_STA);
   Serial.print("MAC Addres: ");
   Serial.println(WiFi.macAddress());
@@ -53,6 +83,7 @@ void EspNowInit() {
     Serial.println("Error initializing ESP-NOW");
     return;
   }
+  espName = _espName;
 
   //Register callbacks
   //esp_now_register_send_cb(OnDataSent);  //Send callack

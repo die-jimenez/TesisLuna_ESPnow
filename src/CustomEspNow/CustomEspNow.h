@@ -14,12 +14,13 @@ struct EspNowMessage {
   int publicPassword;
   bool toAudio; // true = mensaje para el ESP-Audio del mismo circuito
 };
+extern int espName;
 
 extern EspNowMessage myData;
 extern EspNowMessage otherData;
 extern EspNowMessage dataExample; 
 
-void EspNowInit();
+void EspNowInit(int _espName);
 
 void EspNowSend(const EspNowMessage& data);
 void EspNowSetMessage(int name, int stage, int statueEnabled, bool isReadyToHappyEnding, bool toAudio = false);

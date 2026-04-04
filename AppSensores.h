@@ -122,7 +122,7 @@ void Sensores_Setup() {
   statueStateMachine.SetCanInteract(true);
 
   //Esp now
-  EspNowInit();
+  EspNowInit(statueSetting.name);
   EspNowRegisterOnSend(OnSendData);
   EspNowRegisterOnReceive(OnReceiveData);
 

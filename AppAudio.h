@@ -27,7 +27,7 @@ void Audio_Setup() {
   Serial.print(statueSetting.name);
   delay(12000);
 
-  EspNowInit();
+  EspNowInit(statueSetting.name);
   EspNowRegisterOnReceive(OnReceiveData);
 
   Mp3ModuleInit(RXD2, TXD2, BUSY);

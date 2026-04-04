@@ -18,10 +18,10 @@ void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine*
 //================================================================================================
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   if (!CheckPublicPassword(otherData.publicPassword)) return;
-
-  bool isMyAudioMessage =
-    (statueSetting->name == StatueSetting::Name::SENSORS_HAPPY && otherData.name == (int)StatueSetting::Name::AUDIO_HAPPY)
-    || (statueSetting->name == StatueSetting::Name::SENSORS_SAD && otherData.name == (int)StatueSetting::Name::AUDIO_SAD);
+  
+  //NO hace falta distinguir que espAudio es porque ya lo filtro desde el CUstomEspNow
+  bool isMyAudioMessage = (otherData.name == (int)StatueSetting::Name::AUDIO_HAPPY)
+                          || (otherData.name == (int)StatueSetting::Name::AUDIO_SAD);
 
   if (isMyAudioMessage) {
     Serial.println("DEBE HACER ALGOOOO");
@@ -33,13 +33,19 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   UpdateStage(otherData.stage);
   UpdateStatueEnabled(otherData.statueEnabled);
 
-
   //PARCHE: Ahora, la preparacion final se da por el stage, y no por el isReadyToHappyEnding.
   Serial.println("STAGESSSSS");
-  Serial.println(lastStage);
+  switch (stage) {
+    case 0: Serial.println("STANDBY"); break;
+    case 1: Serial.println("INTRO"); break;
+    case 2: Serial.println("DESARROLLO"); break;
+    case 3: Serial.println("FINAL"); break;
+  }
 
-  if (stage == Stages::FINAL && lastStage== Stages::FINAL)
+
+  if (stage == Stages::FINAL && lastStage == Stages::FINAL) {
     SyncFinalOnRecieve(otherData);
+  }
 
   //Evita reinicio por inactividad
   resetTimer = 0;
