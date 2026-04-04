@@ -31,7 +31,7 @@ void StatueStateMachine::UpdateIdle() {
   //Check if at any sensor has a stable touch
   if (!sensorsManager->areAllSensorsOff()) {
     ChangeState(INTERACTING);
-    sensorsManager->DebugInteraction();
+    //sensorsManager->DebugInteraction();
     //PlaySound(); ------> Puede reproducir un aduio al inicio de la interaccions
   }
 }
@@ -48,7 +48,7 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
   //To Petting
   if (canChangeToPetting) {
     ChangeState(PETTING);
-    sensorsManager->DebugPetting();
+    //sensorsManager->DebugPetting();
     if (onPettingStartedCallback != nullptr) onPettingStartedCallback();
     return;
   }
