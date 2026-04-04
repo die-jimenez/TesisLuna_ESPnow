@@ -29,7 +29,9 @@ private:
   //Eventos
   //===================================================
   typedef void (*OnPettingStartedCallback)();
+  typedef void (*OnAudioFinishedCallback)();
   OnPettingStartedCallback onPettingStartedCallback = nullptr;
+  OnAudioFinishedCallback onAudioFinishedCallback = nullptr;
 
 
 public:
@@ -53,6 +55,7 @@ public:
   void UpdateIdle();
   void UpdateInteraction(float triggerToPetting, int minSensorsToPet);
   void UpdatePetting();
+  void NotifyAudioFinished();
 
   //Handle Interaction State
   //===================================================
@@ -66,6 +69,7 @@ public:
   //Events to send message through EspNow
   //===================================================
   void RegisterOnPettingStarted(OnPettingStartedCallback fn);
+  void RegisterOnAudioFinished(OnAudioFinishedCallback fn);
 };
 
 #endif

@@ -98,6 +98,7 @@ SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 //===================================================
 void OnReceiveData(const EspNowMessage& data);
 void OnSendData(const EspNowMessage& data);
+void OnAudioFinished();
 void OnPettingStarted();
 void DebugStage(GlobalStateMachine* global, GlobalStateMachine::Stages x);
 //===================================================
@@ -117,6 +118,7 @@ void Sensores_Setup() {
   //State Machine
   statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);
   statueStateMachine.RegisterOnPettingStarted(OnPettingStarted);
+  statueStateMachine.RegisterOnAudioFinished(OnAudioFinished);
   statueStateMachine.SetCanInteract(true);
 
   //Esp now
@@ -177,6 +179,10 @@ void OnReceiveData(const EspNowMessage& data) {
 
 void OnSendData(const EspNowMessage& data) {
   globalStateMachine.OnSendMessage(data);
+}
+
+void OnAudioFinished() {
+  globalStateMachine.OnAudioFinished();
 }
 
 void OnPettingStarted() {

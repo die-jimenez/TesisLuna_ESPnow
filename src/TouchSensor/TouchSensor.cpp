@@ -33,7 +33,7 @@ bool TouchSensor::isTouch() {
 bool TouchSensor::isTouchStable() {
   if (activeTime > minTouchDuration)  //
   {
-    //DebugEvent();
+    DebugEvent();
     return true;
   }
   ResetDebugEvent();

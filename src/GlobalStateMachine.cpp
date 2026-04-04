@@ -12,23 +12,29 @@ void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine*
   PrintInfo();
 }
 
+
+
 #pragma region->Send or recieve messages(CustomEspNow)
 //================================================================================================
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   if (!CheckPublicPassword(otherData.publicPassword)) return;
 
-  bool isFromMyAudio = (otherData.name == (int)StatueSetting::Name::AUDIO_HAPPY)
-                       || (otherData.name == (int)StatueSetting::Name::AUDIO_SAD);
+  bool isMyAudioMessage =
+    (statueSetting->name == StatueSetting::Name::SENSORS_HAPPY && otherData.name == (int)StatueSetting::Name::AUDIO_HAPPY)
+    || (statueSetting->name == StatueSetting::Name::SENSORS_SAD && otherData.name == (int)StatueSetting::Name::AUDIO_SAD);
 
-  if (isFromMyAudio) {
-    Serial.println("El audio termino");
-    OnAudioFinished();
+  if (isMyAudioMessage) {
+    Serial.println("DEBE HACER ALGOOOO");
+    statueStateMachine->NotifyAudioFinished();
     return;
   }
 
   //PARCHE: Ahora, la preparacion final se da por el stage, y no por el isReadyToHappyEnding.
   //esto provoca que el cambio de fase active el final en SAD. Esto busca evitar que se dispare de esa
   bool wasOnDesarrollo = stage == Stages::DESARROLLO;
+  Serial.println("STAGESSSSS");
+  Serial.println(wasOnDesarrollo);
+
 
   UpdateStage(otherData.stage);
   UpdateStatueEnabled(otherData.statueEnabled);
@@ -46,7 +52,6 @@ void GlobalStateMachine::OnSendMessage(const EspNowMessage& myData) {
   //Evita reinicio por inactividad
   resetTimer = 0;
 }
-
 #pragma endregion
 
 
@@ -99,27 +104,21 @@ void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
 #pragma region->PettingStarted and AudioFinished(StatueStateMachine)
 //=======================================================================================
 void GlobalStateMachine::OnAudioFinished() {
-  // Serial.println("SE REINICIO A IDLE AAAAAAAAAAAAAAAAAAAAAA");
-  // statueStateMachine->ResetInteractionState();
-  // Serial.println(statueStateMachine->state);
-
-  if (stage == Stages::FINAL) {
-    bool goodEndingPlayed = happyOnGoodEnding && sadOnGoodEnding;
-    if (goodEndingPlayed) {
-      delay(2000);
-      FullReset();
-    } else {
-      statueStateMachine->ResetInteractionState();
-      badEndingTimerActive = true;
-      finalEndingTimer = 0;
-    }
+  if (stage != Stages::FINAL) {
+    Stages nextStage = (Stages)((int)stage + 1);
+    NextStageOrPassTurn(nextStage);
+    EspNowPrintSendData();
     return;
   }
 
-  statueStateMachine->ResetInteractionState();
-  Stages nextStage = (Stages)((int)stage + 1);
-  NextStageOrPassTurn(nextStage);
-  EspNowPrintSendData();
+  bool goodEndingPlayed = happyOnGoodEnding && sadOnGoodEnding;
+  if (goodEndingPlayed) {
+    delay(2000);
+    FullReset();
+  } else {
+    badEndingTimerActive = true;
+    finalEndingTimer = 0;
+  }
 }
 
 void GlobalStateMachine::OnPettingStarted() {
@@ -138,7 +137,6 @@ void GlobalStateMachine::OnPettingStarted() {
   // Mandar al propio audio
   bool canPlayGoodEnding = happyOnGoodEnding && sadOnGoodEnding;
   MessageToAudio((int)Stages::FINAL, canPlayGoodEnding);
-
   EspNowPrintSendData();
   PrintEndingInfo();
 }
@@ -181,7 +179,7 @@ void GlobalStateMachine::NextStageOrPassTurn(GlobalStateMachine::Stages nextStag
 
 void GlobalStateMachine::MessageToAudio(int _stage, bool _canPlayGoodEnding) {
   int myAudio;
-  if (statueSetting->name == (int)StatueSetting::Name::SENSORS_HAPPY)
+  if (statueSetting->name== (int)StatueSetting::Name::SENSORS_HAPPY)
     myAudio = StatueSetting::Name::AUDIO_HAPPY;
   else if (statueSetting->name == (int)StatueSetting::Name::SENSORS_SAD)
     myAudio = StatueSetting::Name::AUDIO_SAD;
@@ -192,9 +190,9 @@ void GlobalStateMachine::MessageToAudio(int _stage, bool _canPlayGoodEnding) {
 
 void GlobalStateMachine::MessageToOtherSensor(int _stage, int _statuesEnabled, bool _canPlayGoodEnding) {
   int otherSensorController;
-  if (statueSetting->name == (int)StatueSetting::Name::SENSORS_HAPPY)
+  if (statueSetting->name== (int)StatueSetting::Name::SENSORS_HAPPY)
     otherSensorController = StatueSetting::Name::SENSORS_SAD;
-  else if (statueSetting->name == (int)StatueSetting::Name::SENSORS_SAD)
+  else if (statueSetting->name== (int)StatueSetting::Name::SENSORS_SAD)
     otherSensorController = StatueSetting::Name::SENSORS_HAPPY;
   else Serial.println("EL NAME DE ESTE ESP NO CORRESPONDE A LOS DISPONIBLES");
 

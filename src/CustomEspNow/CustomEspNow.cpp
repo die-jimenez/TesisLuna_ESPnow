@@ -120,8 +120,8 @@ void EspNowPrintSendData() {
 
   Serial.print("Name: ");
   switch (myData.name) {
-    case 0: Serial.println("SENSORS_HAPPY"); break;
-    case 1: Serial.println("SENSORS_SAD"); break;
+    case 0: Serial.println("HAPPY"); break;
+    case 1: Serial.println("SAD"); break;
     case 2: Serial.println("AUDIO_SAD"); break;
     case 3: Serial.println("AUDIO_HAPPY"); break;
     default: Serial.println(myData.name); break;
