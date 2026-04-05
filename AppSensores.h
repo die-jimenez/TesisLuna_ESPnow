@@ -75,14 +75,14 @@ int contadorMimitos;
 StatueSetting statueSetting(StatueSetting::Name::SENSORS_HAPPY);  //SENSORS_HAPPY || SENSORS_SAD
 const uint8_t SENSORS_COUNT = 5;                                  //Sensores activos. Evita pinouts de más
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;                          //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-const float pettingTriggerTime = 2.5;                             // Minimmo: 1.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const float pettingTriggerTime = 1.25;                             // Minimmo: 0.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
 
 #ifdef STATUE_SAD
 StatueSetting statueSetting(StatueSetting::Name::SENSORS_SAD);  //SENSORS_HAPPY || SENSORS_SAD
 const uint8_t SENSORS_COUNT = 7;                                //Sensores activos. Evita pinouts de más
 const int MIN_SENSORS_ACTIVE_TO_PET = 2;                        //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-const float pettingTriggerTime = 2.5;                           //Minimmo: 1.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const float pettingTriggerTime = 0.75;                           //Minimmo: 0.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
 
 const float INACTIVITY_TIMEOUT = 60.0;
@@ -113,7 +113,7 @@ void Sensores_Setup() {
 
   //Global state machine
   globalStateMachine.Init(&statueSetting, &statueStateMachine, &deltaTime);
-  DebugStage(&globalStateMachine, GlobalStateMachine::Stages::DESARROLLO);
+  //DebugStage(&globalStateMachine, GlobalStateMachine::Stages::DESARROLLO);
 
   //State Machine
   statueStateMachine.Init(&statueSetting, &sensorsManager, &lights, &deltaTime);

@@ -24,7 +24,7 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
                           || (otherData.name == (int)StatueSetting::Name::AUDIO_SAD);
 
   if (isMyAudioMessage) {
-    Serial.println("DEBE HACER ALGOOOO");
+    Serial.println("Termino el audio");
     statueStateMachine->NotifyAudioFinished();
     return;
   }
@@ -32,16 +32,6 @@ void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   lastStage = stage;
   UpdateStage(otherData.stage);
   UpdateStatueEnabled(otherData.statueEnabled);
-
-  //PARCHE: Ahora, la preparacion final se da por el stage, y no por el isReadyToHappyEnding.
-  Serial.println("STAGESSSSS");
-  switch (stage) {
-    case 0: Serial.println("STANDBY"); break;
-    case 1: Serial.println("INTRO"); break;
-    case 2: Serial.println("DESARROLLO"); break;
-    case 3: Serial.println("FINAL"); break;
-  }
-
 
   if (stage == Stages::FINAL && lastStage == Stages::FINAL) {
     SyncFinalOnRecieve(otherData);
