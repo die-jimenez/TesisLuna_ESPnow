@@ -75,18 +75,18 @@ int contadorMimitos;
 StatueSetting statueSetting(StatueSetting::Name::SENSORS_HAPPY);  //SENSORS_HAPPY || SENSORS_SAD
 const uint8_t SENSORS_COUNT = 5;                                  //Sensores activos. Evita pinouts de más
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;                          //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-const float pettingTriggerTime = 1.25;                             // Minimmo: 0.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const float pettingTriggerTime = 1.25;                            // Minimmo: 0.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
 
 #ifdef STATUE_SAD
 StatueSetting statueSetting(StatueSetting::Name::SENSORS_SAD);  //SENSORS_HAPPY || SENSORS_SAD
 const uint8_t SENSORS_COUNT = 7;                                //Sensores activos. Evita pinouts de más
 const int MIN_SENSORS_ACTIVE_TO_PET = 2;                        //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-const float pettingTriggerTime = 0.75;                           //Minimmo: 0.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const float pettingTriggerTime = 1.25;                          //Minimmo: 0.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
 
-const float INACTIVITY_TIMEOUT = 60.0;
-const float BAD_ENDING_RESET_TIMEOUT = 30.0;
+const float INACTIVITY_TIMEOUT = 90.0;
+const float BAD_ENDING_RESET_TIMEOUT = 25.0;
 SensorsManager sensorsManager(sensors, SENSORS_COUNT);
 #pragma endregion
 //===========================================================================================================
@@ -110,6 +110,8 @@ void Sensores_Setup() {
   Serial.begin(115200);
   delay(3000);
   Serial.println("Iniciando sensores");
+  delay(15000);  //Espera para que se inicialice el sistema de audio
+
 
   //Global state machine
   globalStateMachine.Init(&statueSetting, &statueStateMachine, &deltaTime);
@@ -163,6 +165,7 @@ void Sensores_Loop() {
   }
 
   globalStateMachine.UpdateResetTimer(&INACTIVITY_TIMEOUT, &BAD_ENDING_RESET_TIMEOUT);
+
 
   deltaTime.Run();
   delay(5);

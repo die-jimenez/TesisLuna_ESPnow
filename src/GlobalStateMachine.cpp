@@ -91,6 +91,7 @@ void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
   if (happyOnGoodEnding && sadOnGoodEnding) {
     Serial.println(">>> Sincronización completa: Iniciando FINAL FELIZ");
     MessageToAudio((int)stage, true);
+    statueStateMachine->ChangeState(StatueStateMachine::State::PETTING);
     //PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
   }
 }
@@ -183,33 +184,6 @@ void GlobalStateMachine::NextStageOrPassTurn(GlobalStateMachine::Stages nextStag
 
 
 
-
-
-// void GlobalStateMachine::PlayFinal(bool goodEnding) {
-
-//   if (goodEnding) {
-//     //PlaySound(StatueSetting::AudiosTrack::TRACK_GOOD_ENDING);
-//     EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
-//     // Opcional: Podrías llamar a FullReset() después de un delay o cuando termine el audio en OnAudioFinished.
-//   } else {
-//     EspNowSetAndSendMessage(statueSetting->name, (int)stage, NONE, true, statueSetting->ToAudio);
-//   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void GlobalStateMachine::PrintInfo() {
   Serial.println();
   Serial.println("--------------------------------------------");
@@ -260,6 +234,7 @@ void GlobalStateMachine::UpdateResetTimer(const float* _INACTIVITY_TIMEOUT, cons
       FullReset();
     }
   }
+  
 
   if (badEndingTimerActive) {
     finalEndingTimer += deltaTime->Get();
