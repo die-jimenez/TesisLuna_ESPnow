@@ -182,6 +182,18 @@ void GlobalStateMachine::NextStageOrPassTurn(GlobalStateMachine::Stages nextStag
   }
 }
 
+void GlobalStateMachine::UpdateTimerToPlayRandomSound(float interlapse) {
+  if (stage == (Stages)Stages::STANDBY) {
+    randomSoundTimer += deltaTime->Get();
+    if (randomSoundTimer >= interlapse) {
+      randomSoundTimer = 0;
+      OnPettingStarted();
+    }
+  }
+  else {
+    randomSoundTimer = 0;
+  }
+}
 
 
 void GlobalStateMachine::PrintInfo() {

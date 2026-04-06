@@ -35,6 +35,7 @@ private:
   //timer to reset
   float resetTimer = 0;
   float finalEndingTimer = 0;
+  float randomSoundTimer = 0;
   bool badEndingTimerActive = false;
 
   //ending
@@ -77,6 +78,8 @@ public:
 
   void PlayFinal(bool goodEnding);
   void PrintInfo();
+
+  void UpdateTimerToPlayRandomSound(float interlapse);
 };
 
 #endif

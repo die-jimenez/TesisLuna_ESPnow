@@ -167,6 +167,17 @@ void Sensores_Loop() {
   globalStateMachine.UpdateResetTimer(&INACTIVITY_TIMEOUT, &BAD_ENDING_RESET_TIMEOUT);
 
 
+  
+#ifdef STATUE_HAPPY
+  UpdateTimerToPlayRandomSound(600000);
+#endif
+
+#ifdef STATUE_SAD
+  UpdateTimerToPlayRandomSound(300000);
+#endif
+
+
+
   deltaTime.Run();
   delay(5);
 }
