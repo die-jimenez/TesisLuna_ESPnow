@@ -41,7 +41,7 @@ void Audio_Setup() {
 
 bool isCurrentlyPlaying() {
   // Invertimos aquí para que la función devuelva TRUE cuando REALMENTE suena
-  // Antes se hacia de otra fomra y esto es un maquillajec:\Users\Compumar\Desktop\Diego stuff\TesisLuna_ESPnow\src\GlobalStateMachine.cpp
+  // Antes se hacia de otra fomra y esto es un maquillaje
   return IsPlayingAudio() == 0;
 }
 
