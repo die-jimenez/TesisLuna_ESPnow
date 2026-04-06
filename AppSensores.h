@@ -169,11 +169,12 @@ void Sensores_Loop() {
 
 
 #ifdef STATUE_HAPPY
-  globalStateMachine.UpdateTimerToPlayRandomSound(600000);
+  globalStateMachine.UpdateTimerToPlayRandomSound(780);
 #endif
 
 #ifdef STATUE_SAD
-  globalStateMachine.UpdateTimerToPlayRandomSound(300000);
+  globalStateMachine.UpdateTimerToPlayRandomSound(600);
+  //Serial.println(globalStateMachine.randomSoundTimer);
 #endif
 
 

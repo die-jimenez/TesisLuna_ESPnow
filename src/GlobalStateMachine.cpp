@@ -18,7 +18,7 @@ void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine*
 //================================================================================================
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   if (!CheckPublicPassword(otherData.publicPassword)) return;
-  
+
   //NO hace falta distinguir que espAudio es porque ya lo filtro desde el CUstomEspNow
   bool isMyAudioMessage = (otherData.name == (int)StatueSetting::Name::AUDIO_HAPPY)
                           || (otherData.name == (int)StatueSetting::Name::AUDIO_SAD);
@@ -187,10 +187,11 @@ void GlobalStateMachine::UpdateTimerToPlayRandomSound(float interlapse) {
     randomSoundTimer += deltaTime->Get();
     if (randomSoundTimer >= interlapse) {
       randomSoundTimer = 0;
-      OnPettingStarted();
+      statueStateMachine->ChangeState(StatueStateMachine::State::PETTING);//Actualizar luces
+      //sensorsManager->DebugPetting();
+      OnPettingStarted();//Disparar audio y ciclo
     }
-  }
-  else {
+  } else {
     randomSoundTimer = 0;
   }
 }
@@ -246,7 +247,7 @@ void GlobalStateMachine::UpdateResetTimer(const float* _INACTIVITY_TIMEOUT, cons
       FullReset();
     }
   }
-  
+
 
   if (badEndingTimerActive) {
     finalEndingTimer += deltaTime->Get();
