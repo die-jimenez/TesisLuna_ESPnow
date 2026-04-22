@@ -19,13 +19,16 @@ void GlobalStateMachine::Init(StatueSetting* _statueSetting, StatueStateMachine*
 void GlobalStateMachine::OnReciveMessage(const EspNowMessage& otherData) {
   if (!CheckPublicPassword(otherData.publicPassword)) return;
 
-  //NO hace falta distinguir que espAudio es porque ya lo filtro desde el CUstomEspNow
+
+  //No hace falta distinguir que espAudio es porque ya lo filtro desde el CustomEspNow
   bool isMyAudioMessage = (otherData.name == (int)StatueSetting::Name::AUDIO_HAPPY)
                           || (otherData.name == (int)StatueSetting::Name::AUDIO_SAD);
 
   if (isMyAudioMessage) {
-    Serial.println("Termino el audio");
-    statueStateMachine->NotifyAudioFinished();
+    //NO ES CONFIABLE EL PIN BUSY DEL DF-PLAYER ASI QUE SE SIMULA EL FIN DEL AUDIO
+    //Ahora el cmabio de estado se mantiene en el stateMachine
+    // Serial.println("Termino el audio");
+    // statueStateMachine->NotifyAudioFinished();
     return;
   }
 
@@ -100,7 +103,33 @@ void GlobalStateMachine::SyncFinalOnRecieve(const EspNowMessage& otherData) {
 
 #pragma region->PettingStarted and AudioFinished(StatueStateMachine)
 //=======================================================================================
+void GlobalStateMachine::AudioFinishedSimulated() {
+  switch (stage) {
+    case (int)Stages::STANDBY:
+      audioDuration = 5;
+      break;
+    case (int)Stages::INTRO:
+      audioDuration = 10;
+      break;
+    case (int)Stages::DESARROLLO:
+      audioDuration = 8;
+      break;
+    case (int)Stages::FINAL:
+      audioDuration = 25;
+      break;
+  }
+
+  timePlayingAudio += deltaTime->Get();
+  if (timePlayingAudio >= audioDuration) {
+    Serial.println("Termino el audio simulado");
+    statueStateMachine->NotifyAudioFinished();
+  }
+}
+
 void GlobalStateMachine::OnAudioFinished() {
+  //Reinicio de la duracion del audio simulada
+  timePlayingAudio = 0;
+
   if (stage != Stages::FINAL) {
     Stages nextStage = (Stages)((int)stage + 1);
     NextStageOrPassTurn(nextStage);
@@ -187,9 +216,9 @@ void GlobalStateMachine::UpdateTimerToPlayRandomSound(float interlapse) {
     randomSoundTimer += deltaTime->Get();
     if (randomSoundTimer >= interlapse) {
       randomSoundTimer = 0;
-      statueStateMachine->ChangeState(StatueStateMachine::State::PETTING);//Actualizar luces
+      statueStateMachine->ChangeState(StatueStateMachine::State::PETTING);  //Actualizar luces
       //sensorsManager->DebugPetting();
-      OnPettingStarted();//Disparar audio y ciclo
+      OnPettingStarted();  //Disparar audio y ciclo
     }
   } else {
     randomSoundTimer = 0;

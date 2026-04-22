@@ -49,14 +49,17 @@ void Audio_Loop() {
   bool nowPlaying = isCurrentlyPlaying();
 
   if (wasPlaying && !nowPlaying) {
-    Serial.println("Audio terminado, avisando al ESP-Sensores");
-    EspNowSetAndSendMessage(
-      (int)statueSetting.name,  // AUDIO_HAPPY o AUDIO_SAD
-      0,
-      3,  //NONE -> esta en el GlobalStateMachine
-      false,
-      false  // toAudio = false, va al ESP-Sensores
-    );
+
+    //El pin busy del df-player no es consistente, asi que se sumula cuando termino el audio
+    // Serial.println("Audio terminado, avisando al ESP-Sensores");
+    // EspNowSetAndSendMessage(
+    //   (int)statueSetting.name,  // AUDIO_HAPPY o AUDIO_SAD
+    //   0,
+    //   3,  //NONE -> esta en el GlobalStateMachine
+    //   false,
+    //   false  // toAudio = false, va al ESP-Sensores
+    // );
+    
     wasPlaying = false;
   }
   DelayForBusyUpdate();

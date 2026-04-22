@@ -38,6 +38,10 @@ private:
   float randomSoundTimer = 0;
   bool badEndingTimerActive = false;
 
+  //Audio finished simulated
+  float timePlayingAudio;
+  float audioDuration;
+
   //ending
   bool happyOnGoodEnding = false;
   bool sadOnGoodEnding = false;
@@ -78,6 +82,7 @@ public:
 
   void PlayFinal(bool goodEnding);
   void PrintInfo();
+  void AudioFinishedSimulated();
 
   void UpdateTimerToPlayRandomSound(float interlapse);
 };

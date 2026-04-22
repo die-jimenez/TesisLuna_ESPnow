@@ -25,6 +25,10 @@ private:
   //Cronometros
   //===================================================
   float timeInteracting = 0;
+  float timeOnPettingState;
+
+  // ⚠️ WATCHDOG: Solo interviene si el timer del global falla.
+  const float PETTING_WATCHDOG_DURATION = 40;
 
   //Eventos
   //===================================================
