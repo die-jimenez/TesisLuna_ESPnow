@@ -75,7 +75,7 @@ int contadorMimitos;
 StatueSetting statueSetting(StatueSetting::Name::SENSORS_HAPPY);  //SENSORS_HAPPY || SENSORS_SAD
 const uint8_t SENSORS_COUNT = 5;                                  //Sensores activos. Evita pinouts de más
 const int MIN_SENSORS_ACTIVE_TO_PET = 1;                          //Minimo de sensores activados para contar "Mimito" || INTERACION -> MIMITOS
-const float pettingTriggerTime = 1.25;                            // Minimmo: 0.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
+const float pettingTriggerTime = 0.8;                            // Minimmo: 0.5 -> Tiempo de interaccion para Mimito || INTERACION -> MIMITOS
 #endif
 
 #ifdef STATUE_SAD
@@ -157,13 +157,13 @@ void Sensores_Loop() {
     }  //
     else if (statueStateMachine.state == StatueStateMachine::PETTING) {
       statueStateMachine.UpdatePetting();
+      globalStateMachine.AudioFinishedSimulated();
     }
   }
 
   // Se usa por fuera del canInteract, para evitar asegurarse de que siempre se reiniciara
-  if (statueStateMachine.state == StatueStateMachine::PETTING) {
-    globalStateMachine.AudioFinishedSimulated();
-  }
+  // if (statueStateMachine.state == StatueStateMachine::PETTING) {
+  // }
 
 
   if (!statueStateMachine.GetCanInteract()) {

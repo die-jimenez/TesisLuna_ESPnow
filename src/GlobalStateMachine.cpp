@@ -115,7 +115,13 @@ void GlobalStateMachine::AudioFinishedSimulated() {
       audioDuration = 8;
       break;
     case (int)Stages::FINAL:
-      audioDuration = 25;
+      bool goodEndingPlayed = happyOnGoodEnding && sadOnGoodEnding;
+      if (goodEndingPlayed) {
+        timePlayingAudio = 0;
+        audioDuration = 25;
+        delay(25000);
+        FullReset();
+      } else audioDuration = 10;
       break;
   }
 
@@ -123,7 +129,10 @@ void GlobalStateMachine::AudioFinishedSimulated() {
   if (timePlayingAudio >= audioDuration) {
     Serial.println("Termino el audio simulado");
     statueStateMachine->NotifyAudioFinished();
+    timePlayingAudio = 0;
   }
+
+  //Serial.println(timePlayingAudio);
 }
 
 void GlobalStateMachine::OnAudioFinished() {
@@ -295,6 +304,8 @@ void GlobalStateMachine::FullReset() {
   sadOnGoodEnding = false;
   happyOnGoodEnding = false;
   badEndingTimerActive = false;
+  audioDuration = 5;
+  timePlayingAudio = 0;
   finalEndingTimer = 0;
 
   statueEnabled = StatuesEnabled::BOTH_ENABLED;

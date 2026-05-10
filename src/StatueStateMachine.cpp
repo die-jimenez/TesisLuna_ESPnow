@@ -61,15 +61,6 @@ void StatueStateMachine::UpdateInteraction(float pettingTriggerTime, int minSens
 
 void StatueStateMachine::UpdatePetting() {
   lights->Update(Lights::LightState::ON, deltaTime);
-
-  // ⚠️ WATCHDOG: Solo interviene si el timer del global falla.
-  timeOnPettingState += deltaTime->Get();
-  if (timeOnPettingState >= PETTING_WATCHDOG_DURATION) {
-    //Enviar mensaje a la otra escultura
-    if (onAudioFinishedCallback != nullptr) onAudioFinishedCallback();
-    ResetInteractionState();
-    Serial.println("WATCHDOG : Reset forzado en StatueStateMachine");
-  }
 }
 
 void StatueStateMachine::NotifyAudioFinished() {
@@ -91,7 +82,6 @@ bool StatueStateMachine::GetCanInteract() {
 
 void StatueStateMachine::ResetInteractionState() {
   timeInteracting = 0;
-  timeOnPettingState = 0;
   sensorsManager->ResetAllSensors();
   ChangeState(State::IDLE);
 }
